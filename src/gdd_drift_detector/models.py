@@ -7,6 +7,13 @@ from pathlib import Path
 from typing import Literal
 
 FindingStatus = Literal["MATCHED", "MISSING"]
+ScanFailureCode = Literal[
+    "INVALID_PROJECT",
+    "INVALID_CONFIG",
+    "UNSUPPORTED_INPUT",
+    "UNREADABLE_INPUT",
+    "UNSUPPORTED_SOURCE",
+]
 
 
 @dataclass(frozen=True)
@@ -92,7 +99,9 @@ class ScanResult:
 class ScanFailure(Exception):
     """A stable, typed invalid-input failure suitable for host adapters."""
 
-    def __init__(self, code: str, message: str, path: Path | None = None) -> None:
+    def __init__(
+        self, code: ScanFailureCode, message: str, path: Path | None = None
+    ) -> None:
         super().__init__(message)
         self.code = code
         self.message = message

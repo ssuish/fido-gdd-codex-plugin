@@ -12,7 +12,7 @@ scans write `drift_report.md` and versioned `drift.json` to the supplied project
 root. This project-root location is the canonical artifact convention; a future
 configurable output directory must preserve it as the default.
 
-Invalid project roots and unreadable or unsupported configured inputs are typed
-`ScanFailure` values. The CLI serializes them as structured JSON to stderr and
+Invalid project roots and unreadable or unsupported configured inputs raise typed
+`ScanFailure` exceptions. The CLI serializes them as structured JSON to stderr and
 uses a non-zero exit status. Invalid input writes no artifacts, keeping the
 detector local and read-only except for successful canonical artifacts.

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import socket
 import subprocess
 import sys
 from pathlib import Path
@@ -19,7 +20,7 @@ def copy_fixture(tmp_path: Path) -> Path:
     return root
 
 
-def config() -> ScanConfig:
+def default_scan_config() -> ScanConfig:
     return ScanConfig(
         gdd_paths=(Path("GDD.md"),),
         source_paths=(Path("scripts/player_controller.gd"),),
@@ -31,12 +32,12 @@ def test_scan_returns_exact_normalized_matches_and_writes_root_artifacts(
 ) -> None:
     root = copy_fixture(tmp_path)
 
-    result = scan(root, config())
+    result = scan(root, default_scan_config())
 
-    assert [finding.status for finding in result.findings] == ["MATCHED", "MISSING"]
+    assert [finding.status for finding in result.findings] == ["MATCHED"]
     assert result.summary.matched == 1
-    assert result.summary.total == 2
-    assert result.summary.coverage_percent == 50.0
+    assert result.summary.total == 1
+    assert result.summary.coverage_percent == 100.0
     assert result.duration_ms >= 0
     assert (root / "drift_report.md").is_file()
     artifact = json.loads((root / "drift.json").read_text())
@@ -50,21 +51,46 @@ def test_scan_returns_exact_normalized_matches_and_writes_root_artifacts(
         "summary",
     }
     assert artifact["findings"][0]["status"] == "MATCHED"
-    assert artifact["summary"] == {"coverage_percent": 50.0, "matched": 1, "total": 2}
+    assert artifact["summary"] == {
+        "coverage_percent": 100.0,
+        "matched": 1,
+        "total": 1,
+    }
     report = (root / "drift_report.md").read_text()
-    assert "Coverage: 1/2 (50%)" in report
+    assert "Coverage: 1/1 (100%)" in report
     assert "MATCHED: PlayerController" in report
-    assert "MISSING: MissingSystem" in report
 
 
-def test_artifacts_agree_and_authoritative_inputs_are_unchanged(tmp_path: Path) -> None:
+def test_missing_tracked_entity_is_reported(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text(
+        "[entity: mechanic] PlayerController — controls the player.\n"
+        "[entity: system] MissingSystem — intentionally has no implementation.\n"
+    )
+
+    result = scan(root, default_scan_config())
+
+    assert [finding.status for finding in result.findings] == ["MATCHED", "MISSING"]
+    assert result.summary.matched == 1
+    assert result.summary.total == 2
+    assert "MISSING: MissingSystem" in (root / "drift_report.md").read_text()
+
+
+def test_artifacts_agree_and_authoritative_inputs_are_unchanged(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     root = copy_fixture(tmp_path)
     drift_config = root / "drift.toml"
     drift_config.write_text("[scan]\n")
     inputs = [root / "GDD.md", root / "scripts/player_controller.gd", drift_config]
     before = {path: path.read_bytes() for path in inputs}
 
-    scan(root, config())
+    def reject_network(*_args: object, **_kwargs: object) -> socket.socket:
+        raise AssertionError("scan must remain offline")
+
+    monkeypatch.setattr(socket, "socket", reject_network)
+
+    scan(root, default_scan_config())
 
     assert {path: path.read_bytes() for path in inputs} == before
     artifact = json.loads((root / "drift.json").read_text())
@@ -95,13 +121,17 @@ def test_cli_serializes_the_same_success_result(tmp_path: Path) -> None:
 
     assert completed.returncode == 0
     assert completed.stderr == ""
-    assert json.loads(completed.stdout)["summary"]["coverage_percent"] == 50.0
+    assert json.loads(completed.stdout)["summary"]["coverage_percent"] == 100.0
 
 
 @pytest.mark.parametrize(
     ("root_factory", "scan_config", "code"),
     [
-        (lambda tmp_path: tmp_path / "not-a-project", config(), "INVALID_PROJECT"),
+        (
+            lambda tmp_path: tmp_path / "not-a-project",
+            default_scan_config(),
+            "INVALID_PROJECT",
+        ),
         (
             copy_fixture,
             ScanConfig(
@@ -155,7 +185,7 @@ def test_unreadable_configured_input_is_rejected(tmp_path: Path) -> None:
     source.chmod(0o000)
 
     with pytest.raises(ScanFailure, match="not readable") as failure:
-        scan(root, config())
+        scan(root, default_scan_config())
 
     assert failure.value.code == "UNREADABLE_INPUT"
     assert not (root / "drift.json").exists()
