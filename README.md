@@ -9,6 +9,8 @@ uv run ruff check .
 uv run ruff format --check .
 uv run mypy
 uv run python -m gdd_drift_detector --project-root /path/to/godot-project --json
+npm run showcase:dev    # start linked showcase
+npm run showcase:build  # build linked showcase
 ```
 
 Conventional scans discover `GDD.md`, `design.md`, `docs/gdd/**/*.md`,

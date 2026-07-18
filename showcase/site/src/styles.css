@@ -1,0 +1,140 @@
+:root {
+  color-scheme: dark;
+  --bg: #10130f;
+  --surface: #171b15;
+  --surface-strong: #1d231b;
+  --line: #333b2f;
+  --text: #edf2e9;
+  --muted: #9ca79a;
+  --accent: #b7ff56;
+  --accent-ink: #12170d;
+  --danger: #ff827b;
+  --warning: #f5c76a;
+  --radius: 10px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f2f5ef;
+  --surface: #ffffff;
+  --surface-strong: #e9eee5;
+  --line: #ccd5c7;
+  --text: #182017;
+  --muted: #586454;
+  --accent: #4d8410;
+  --accent-ink: #f5faef;
+  --danger: #ad3028;
+  --warning: #8a5b00;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+button, a { font: inherit; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; }
+
+.site-shell { min-height: 100dvh; max-width: 1440px; margin: 0 auto; padding: 0 5vw; }
+.topbar { min-height: 72px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); gap: 24px; }
+.wordmark { color: var(--accent); font-size: 12px; letter-spacing: .12em; font-weight: 800; }
+nav { display: flex; align-items: center; gap: 24px; color: var(--muted); font-size: 12px; }
+nav a:hover, nav a:focus-visible { color: var(--text); }
+.theme-button { border: 0; background: none; color: var(--muted); padding: 8px 0; }
+.theme-button:hover, .theme-button:focus-visible { color: var(--accent); }
+
+.hero { min-height: 520px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); align-items: center; gap: 8vw; padding: 72px 0 88px; }
+.hero-copy { max-width: 680px; }
+.eyebrow { color: var(--accent); font-size: 11px; letter-spacing: .16em; margin: 0 0 22px; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { max-width: 700px; margin-bottom: 24px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: clamp(42px, 6vw, 86px); line-height: .98; letter-spacing: -.065em; }
+h2 { font-family: ui-sans-serif, system-ui, sans-serif; font-size: clamp(30px, 4vw, 52px); line-height: 1; letter-spacing: -.045em; margin-bottom: 18px; }
+h3 { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 18px; letter-spacing: -.02em; margin-bottom: 22px; }
+.hero-lede, .section-heading > p:last-child, .install-section p { max-width: 58ch; color: var(--muted); font-family: ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+.primary-button { display: inline-flex; margin-top: 22px; background: var(--accent); color: var(--accent-ink); padding: 14px 18px; border-radius: var(--radius); font-size: 12px; font-weight: 800; transition: transform .2s ease, filter .2s ease; }
+.primary-button:hover, .primary-button:focus-visible { filter: brightness(1.08); transform: translateY(-2px); }
+.hero-signal { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 28px; box-shadow: 14px 14px 0 color-mix(in srgb, var(--accent) 18%, transparent); }
+.signal-line, .signal-meta, .panel-header { display: flex; justify-content: space-between; gap: 18px; align-items: center; }
+.signal-line { border-bottom: 1px solid var(--line); padding-bottom: 18px; font-size: 10px; color: var(--muted); }
+.signal-line strong { color: var(--text); font-size: 10px; text-align: right; }
+.signal-number { color: var(--accent); font-size: clamp(72px, 11vw, 150px); line-height: .9; letter-spacing: -.1em; margin: 48px 0 12px; }
+.signal-caption, .signal-meta { color: var(--muted); font-size: 11px; }
+.signal-meta { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 18px; }
+
+.walkthrough { padding: 72px 0 110px; border-top: 1px solid var(--line); }
+.section-heading { max-width: 700px; margin-bottom: 42px; }
+.proof-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 18px; align-items: stretch; }
+.panel { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.panel-header { min-height: 52px; padding: 0 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+.live-state, .state-badge { color: var(--accent); }
+.state-badge { border: 1px solid currentColor; padding: 5px 7px; border-radius: 999px; font-size: 9px; }
+.state-badge.partial { color: var(--warning); }
+.game-frame { min-height: 398px; padding: 28px; background: radial-gradient(circle at 85% 10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 34%), var(--surface-strong); }
+.game-embed { display: block; width: 100%; min-height: 398px; border: 0; background: var(--surface-strong); }
+.game-placeholder { display: grid; align-content: center; gap: 18px; }
+.game-placeholder p { max-width: 34ch; color: var(--muted); font-family: ui-sans-serif, system-ui, sans-serif; line-height: 1.6; }
+.game-placeholder code { color: var(--accent); font-size: 11px; overflow-wrap: anywhere; }
+.game-title { color: var(--accent); font-size: 28px; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 800; letter-spacing: -.05em; }
+.enemy-health { display: flex; justify-content: space-between; align-items: center; margin-top: 88px; color: var(--muted); font-size: 10px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.enemy-health strong { color: var(--danger); font-size: 22px; }
+.game-encounter { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 42px; }
+.game-encounter button, .install-command button { border: 1px solid var(--line); background: var(--surface); color: var(--text); padding: 12px 10px; border-radius: var(--radius); font-size: 11px; }
+.game-encounter button:hover, .game-encounter button:focus-visible { border-color: var(--accent); color: var(--accent); }
+.game-note { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 24px 0 0; }
+.finding-list { padding: 8px; border-bottom: 1px solid var(--line); }
+.finding-row { width: 100%; display: grid; grid-template-columns: 78px 1fr auto; gap: 12px; align-items: center; text-align: left; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); background: transparent; color: var(--text); padding: 14px 10px; }
+.finding-row:last-child { border-bottom: 0; }
+.finding-row:hover, .finding-row.selected { background: var(--surface-strong); }
+.finding-name { font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 700; }
+.finding-kind { color: var(--muted); font-size: 10px; }
+.status { font-size: 10px; font-weight: 800; }
+.status-missing, .status-orphaned { color: var(--danger); }
+.status-renamed { color: var(--warning); }
+.status-planned { color: var(--muted); }
+.evidence { padding: 24px; }
+.evidence-line, .containment { display: grid; grid-template-columns: 90px 1fr; gap: 14px; border-top: 1px solid var(--line); padding: 14px 0; font-size: 11px; }
+.evidence-line > span, .containment > span { color: var(--muted); font-size: 10px; }
+.evidence-line strong, .containment strong { display: block; font-weight: 500; overflow-wrap: anywhere; }
+.evidence-line a, .containment a { color: inherit; }
+.evidence-line a:hover strong, .containment a:hover strong { color: var(--accent); }
+.containment small { display: block; color: var(--accent); font-size: 9px; margin-top: 8px; }
+.evidence-line code { display: block; color: var(--muted); margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.empty-state { color: var(--muted); padding: 28px; font-size: 12px; }
+.warning-banner { border-bottom: 1px solid var(--line); color: var(--warning); padding: 14px 18px; font-size: 11px; }
+
+.install-section { display: grid; grid-template-columns: 1fr 1fr; gap: 10vw; align-items: end; border-top: 1px solid var(--line); padding: 88px 0; }
+.install-command { display: grid; gap: 12px; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; background: var(--surface); }
+.install-command code { color: var(--accent); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.install-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.install-command button, .download-link, .manifest-link { justify-self: start; color: var(--muted); border: 1px solid var(--line); background: var(--surface); padding: 12px 10px; border-radius: var(--radius); font-size: 11px; }
+.download-link { color: var(--accent); border-color: var(--accent); }
+.install-command button:hover, .install-command button:focus-visible { color: var(--text); border-color: var(--accent); }
+.manifest-link:hover, .manifest-link:focus-visible, .download-link:hover, .download-link:focus-visible { color: var(--text); border-color: var(--accent); }
+.candidate-strip { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.candidate-strip span { color: var(--accent); }
+.candidate-strip strong { color: var(--text); font-weight: 500; }
+footer { display: flex; justify-content: space-between; gap: 18px; border-top: 1px solid var(--line); padding: 22px 0 32px; color: var(--muted); font-size: 10px; }
+footer span:first-child { color: var(--accent); }
+.state-message { min-height: 100dvh; display: grid; place-content: center; max-width: 500px; margin: 0 auto; padding: 24px; text-align: center; }
+.state-message p { color: var(--muted); line-height: 1.6; }
+.error-mark, .loader { width: 48px; height: 48px; display: grid; place-items: center; margin: 0 auto 24px; border: 1px solid var(--accent); border-radius: 50%; color: var(--accent); }
+.loader { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; transform: scale(.88); } }
+
+@media (max-width: 767px) {
+  .site-shell { padding: 0 18px; }
+  .topbar { align-items: flex-start; padding: 20px 0; }
+  nav { gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+  .hero { min-height: auto; grid-template-columns: 1fr; gap: 48px; padding: 64px 0 72px; }
+  h1 { font-size: clamp(42px, 14vw, 66px); }
+  .proof-grid, .install-section { grid-template-columns: 1fr; }
+  .walkthrough { padding: 64px 0 78px; }
+  .install-section { gap: 34px; padding: 64px 0; }
+  .game-frame { min-height: 320px; }
+  .enemy-health { margin-top: 54px; }
+  footer { display: grid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
