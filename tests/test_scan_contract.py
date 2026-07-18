@@ -49,6 +49,7 @@ def test_scan_returns_exact_normalized_matches_and_writes_root_artifacts(
         "code_entities",
         "findings",
         "candidates",
+        "relationships",
         "summary",
     }
     assert artifact["findings"][0]["status"] == "MATCHED"
@@ -401,3 +402,170 @@ def test_cli_discovers_inputs_when_paths_are_omitted(tmp_path: Path) -> None:
 
     assert completed.returncode == 0
     assert json.loads(completed.stdout)["summary"]["coverage_percent"] == 100.0
+
+
+def test_graph_extracts_symbols_and_containment_relationships(
+    tmp_path: Path,
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text(
+        "[entity: class] PlayerController\n"
+        "[entity: signal] health_changed\n"
+        "[entity: variable] max_health\n"
+        "[entity: function] move\n"
+    )
+    (root / "scripts" / "player_controller.gd").write_text(
+        "class_name PlayerController\n"
+        "extends Node\n"
+        "signal health_changed(value: int)\n"
+        "@export var max_health: int = 10\n"
+        "func move() -> void:\n"
+        "    pass\n"
+    )
+
+    result = scan(root, default_scan_config())
+
+    assert [finding.status for finding in result.findings] == [
+        "MATCHED",
+        "MATCHED",
+        "MATCHED",
+        "MATCHED",
+    ]
+    assert {(entity.kind, entity.name) for entity in result.code_entities} == {
+        ("script", "player_controller"),
+        ("class", "PlayerController"),
+        ("signal", "health_changed"),
+        ("exported_variable", "max_health"),
+        ("function", "move"),
+    }
+    symbols = {entity.name: entity for entity in result.code_entities}
+    assert symbols["move"].symbol_path == "PlayerController.move"
+    assert symbols["move"].parent_id == symbols["PlayerController"].entity_id
+    assert all(relationship.kind == "CONTAINS" for relationship in result.relationships)
+    assert len(result.relationships) == 3
+    assert result.findings[3].evidence is not None
+    assert result.findings[3].evidence.containment_path == (
+        "PlayerController",
+        "PlayerController.move",
+    )
+
+
+def test_unique_highest_token_overlap_is_rename_candidate_without_coverage(
+    tmp_path: Path,
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("[entity: system] Enemy AI\n")
+    (root / "scripts" / "ai_controller.gd").write_text("extends Node\n")
+
+    result = scan(
+        root,
+        ScanConfig((Path("GDD.md"),), (Path("scripts/ai_controller.gd"),)),
+    )
+
+    assert result.findings[0].status == "RENAMED?"
+    assert result.findings[0].code_entity is not None
+    assert result.findings[0].code_entity.name == "ai_controller"
+    assert result.summary.matched == 0
+    assert result.summary.total == 1
+    assert result.summary.coverage_percent == 0.0
+
+
+def test_tied_token_overlap_stays_missing_and_reports_top_level_orphans(
+    tmp_path: Path,
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("[entity: system] Enemy AI\n")
+    (root / "scripts" / "ai_controller.gd").write_text("extends Node\n")
+    (root / "scripts" / "ai_manager.gd").write_text(
+        "extends Node\nfunc run():\n    pass\n"
+    )
+
+    result = scan(
+        root,
+        ScanConfig(
+            (Path("GDD.md"),),
+            (Path("scripts/ai_controller.gd"), Path("scripts/ai_manager.gd")),
+        ),
+    )
+
+    assert result.findings[0].status == "MISSING"
+    assert [finding.status for finding in result.findings[1:]] == [
+        "ORPHANED",
+        "ORPHANED",
+    ]
+    assert {
+        finding.code_entity.name
+        for finding in result.findings[1:]
+        if finding.code_entity
+    } == {
+        "ai_controller",
+        "ai_manager",
+    }
+
+
+def test_nested_symbols_are_graph_context_not_default_orphans(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("# No tracked entities\n")
+    (root / "scripts" / "orphan.gd").write_text(
+        "extends Node\n"
+        "signal changed\n"
+        "@export var value: int = 1\n"
+        "func run():\n"
+        "    pass\n"
+    )
+
+    result = scan(
+        root,
+        ScanConfig((Path("GDD.md"),), (Path("scripts/orphan.gd"),)),
+    )
+
+    assert [finding.status for finding in result.findings] == ["ORPHANED"]
+    assert {entity.kind for entity in result.code_entities} == {
+        "script",
+        "signal",
+        "exported_variable",
+        "function",
+    }
+
+
+def test_entity_type_prefers_class_over_same_name_script(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("[entity: class] PlayerController\n")
+
+    result = scan(root, default_scan_config())
+
+    assert result.findings[0].status == "MATCHED"
+    assert result.findings[0].code_entity is not None
+    assert result.findings[0].code_entity.kind == "class"
+
+
+def test_planned_exact_match_is_not_reported_as_orphan(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("[entity: system] [planned] FutureSystem\n")
+    (root / "scripts" / "future_system.gd").write_text("extends Node\n")
+
+    result = scan(
+        root,
+        ScanConfig((Path("GDD.md"),), (Path("scripts/future_system.gd"),)),
+    )
+
+    assert [finding.status for finding in result.findings] == ["PLANNED"]
+    assert result.findings[0].code_entity is not None
+    assert result.summary.coverage_percent is None
+
+
+def test_multiline_export_annotation_is_extracted(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("[entity: variable] health\n")
+    (root / "scripts" / "health.gd").write_text(
+        "extends Node\n@export\nvar health: int\n"
+    )
+
+    result = scan(
+        root,
+        ScanConfig((Path("GDD.md"),), (Path("scripts/health.gd"),)),
+    )
+
+    assert [entity.name for entity in result.code_entities] == ["health", "health"]
+    assert result.code_entities[1].kind == "exported_variable"
+    assert result.findings[0].status == "MATCHED"

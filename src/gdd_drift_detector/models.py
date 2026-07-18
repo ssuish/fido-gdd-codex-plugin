@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal
 
-FindingStatus = Literal["MATCHED", "MISSING", "PLANNED"]
+FindingStatus = Literal["MATCHED", "MISSING", "PLANNED", "RENAMED?", "ORPHANED"]
 ScanFailureCode = Literal[
     "INVALID_PROJECT",
     "INVALID_CONFIG",
@@ -44,6 +44,9 @@ class CodeEntity:
     kind: str
     path: str
     line: int
+    entity_id: str = ""
+    symbol_path: str = ""
+    parent_id: str | None = None
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -52,14 +55,56 @@ class CodeEntity:
 @dataclass(frozen=True)
 class Finding:
     status: FindingStatus
-    tracked_entity: TrackedEntity
+    tracked_entity: TrackedEntity | None
     code_entity: CodeEntity | None
+    evidence: FindingEvidence | None = None
 
     def to_dict(self) -> dict[str, object]:
         return {
             "status": self.status,
-            "tracked_entity": self.tracked_entity.to_dict(),
+            "tracked_entity": (
+                self.tracked_entity.to_dict() if self.tracked_entity else None
+            ),
             "code_entity": self.code_entity.to_dict() if self.code_entity else None,
+            "evidence": self.evidence.to_dict() if self.evidence else None,
+        }
+
+
+@dataclass(frozen=True)
+class FindingEvidence:
+    """Stable source locations and containment context for one finding."""
+
+    gdd_path: str | None
+    gdd_line: int | None
+    code_path: str | None
+    code_line: int | None
+    code_symbol_path: str | None
+    containment_path: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "gdd_path": self.gdd_path,
+            "gdd_line": self.gdd_line,
+            "code_path": self.code_path,
+            "code_line": self.code_line,
+            "code_symbol_path": self.code_symbol_path,
+            "containment_path": list(self.containment_path),
+        }
+
+
+@dataclass(frozen=True)
+class Relationship:
+    """A directed relationship in the implementation entity graph."""
+
+    source_id: str
+    target_id: str
+    kind: Literal["CONTAINS"] = "CONTAINS"
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "source": self.source_id,
+            "target": self.target_id,
+            "type": self.kind,
         }
 
 
@@ -81,6 +126,7 @@ class ScanResult:
     code_entities: tuple[CodeEntity, ...]
     findings: tuple[Finding, ...]
     candidates: tuple[CandidateEntity, ...]
+    relationships: tuple[Relationship, ...]
     summary: ScanSummary
     duration_ms: int
 
@@ -95,6 +141,9 @@ class ScanResult:
             "code_entities": [entity.to_dict() for entity in self.code_entities],
             "findings": [finding.to_dict() for finding in self.findings],
             "candidates": [candidate.to_dict() for candidate in self.candidates],
+            "relationships": [
+                relationship.to_dict() for relationship in self.relationships
+            ],
             "summary": self.summary.to_dict(),
         }
 

@@ -18,6 +18,8 @@ from .models import (
     CandidateEntity,
     CodeEntity,
     Finding,
+    FindingEvidence,
+    Relationship,
     ScanConfig,
     ScanFailure,
     ScanResult,
@@ -36,6 +38,8 @@ _DEFAULT_GDD_PATTERNS = (
     "docs/gdd/**/*.md",
     "docs/design/**/*.md",
 )
+_CAMEL_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+_ACRONYM_BOUNDARY = re.compile(r"(?<=[A-Z])(?=[A-Z][a-z])")
 
 
 @dataclass(frozen=True)
@@ -52,6 +56,14 @@ def normalize_name(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.lower())
 
 
+def _name_tokens(value: str) -> frozenset[str]:
+    value = _ACRONYM_BOUNDARY.sub(" ", value)
+    value = _CAMEL_BOUNDARY.sub(" ", value)
+    return frozenset(
+        token for token in re.split(r"[^A-Za-z0-9]+", value.lower()) if token
+    )
+
+
 def scan(project_root: Path, config: ScanConfig | None = None) -> ScanResult:
     """Scan a Godot project and write canonical root artifacts."""
 
@@ -62,16 +74,27 @@ def scan(project_root: Path, config: ScanConfig | None = None) -> ScanResult:
     project_config = _read_project_config(root)
     resolved_config = _resolve_scan_config(root, config, project_config)
     tracked, candidates = _parse_gdd_sources(root, resolved_config.gdd_paths)
-    code = tuple(
-        entity
-        for path in resolved_config.source_paths
-        for entity in _parse_gdscript(root, path)
+    parsed_code = tuple(
+        _parse_gdscript(root, path) for path in resolved_config.source_paths
     )
-    by_name = {entity.normalized_name: entity for entity in code}
+    code = tuple(entity for entities, _ in parsed_code for entity in entities)
+    relationships = tuple(
+        relationship
+        for _, file_relationships in parsed_code
+        for relationship in file_relationships
+    )
+    by_name: dict[str, tuple[CodeEntity, ...]] = {}
+    for entity in code:
+        by_name[entity.normalized_name] = (
+            *by_name.get(entity.normalized_name, ()),
+            entity,
+        )
     mappings = project_config.accepted_mappings or {}
-    findings = tuple(_find_entity(entity, by_name, mappings) for entity in tracked)
+    findings = _findings(tracked, code, by_name, mappings)
     active_findings = tuple(
-        finding for finding in findings if finding.status != "PLANNED"
+        finding
+        for finding in findings
+        if finding.tracked_entity is not None and finding.status != "PLANNED"
     )
     matched = sum(finding.status == "MATCHED" for finding in active_findings)
     total = len(active_findings)
@@ -87,6 +110,7 @@ def scan(project_root: Path, config: ScanConfig | None = None) -> ScanResult:
         code_entities=code,
         findings=findings,
         candidates=candidates,
+        relationships=relationships,
         summary=summary,
         duration_ms=int((time.perf_counter() - started) * 1000),
     )
@@ -269,23 +293,169 @@ def _parse_gdd(
     return entities, candidates
 
 
+def _findings(
+    tracked: tuple[TrackedEntity, ...],
+    code: tuple[CodeEntity, ...],
+    by_name: dict[str, tuple[CodeEntity, ...]],
+    mappings: dict[str, str],
+) -> tuple[Finding, ...]:
+    findings: list[Finding] = []
+    consumed: set[str] = set()
+    for entity in tracked:
+        finding = _find_entity(entity, code, by_name, mappings, consumed)
+        findings.append(finding)
+        if finding.code_entity and finding.status in {
+            "MATCHED",
+            "RENAMED?",
+            "PLANNED",
+        }:
+            consumed.add(finding.code_entity.entity_id)
+        if finding.status in {"MATCHED", "PLANNED"}:
+            code_name = mappings.get(entity.normalized_name, entity.normalized_name)
+            consumed.update(
+                candidate.entity_id for candidate in by_name.get(code_name, ())
+            )
+
+    for code_entity in code:
+        if (
+            code_entity.parent_id is None
+            and code_entity.kind in {"script", "class"}
+            and code_entity.entity_id not in consumed
+        ):
+            findings.append(
+                Finding(
+                    status="ORPHANED",
+                    tracked_entity=None,
+                    code_entity=code_entity,
+                    evidence=_evidence(None, code_entity, code),
+                )
+            )
+    return tuple(findings)
+
+
 def _find_entity(
     entity: TrackedEntity,
-    by_name: dict[str, CodeEntity],
+    code: tuple[CodeEntity, ...],
+    by_name: dict[str, tuple[CodeEntity, ...]],
     mappings: dict[str, str],
+    consumed: set[str],
 ) -> Finding:
-    if entity.planned:
-        return Finding(status="PLANNED", tracked_entity=entity, code_entity=None)
     code_name = mappings.get(entity.normalized_name, entity.normalized_name)
-    code_entity = by_name.get(code_name)
+    exact_entities = tuple(
+        candidate
+        for candidate in by_name.get(code_name, ())
+        if candidate.entity_id not in consumed
+    )
+    exact_entities = _prioritize_entity_kind(entity, exact_entities)
+    if entity.planned:
+        return Finding(
+            status="PLANNED",
+            tracked_entity=entity,
+            code_entity=exact_entities[0] if exact_entities else None,
+            evidence=_evidence(
+                entity, exact_entities[0] if exact_entities else None, code
+            ),
+        )
+    if exact_entities:
+        code_entity = exact_entities[0]
+        return Finding(
+            status="MATCHED",
+            tracked_entity=entity,
+            code_entity=code_entity,
+            evidence=_evidence(entity, code_entity, code),
+        )
+
+    gdd_tokens = _name_tokens(entity.name)
+    scored = sorted(
+        [
+            (
+                _token_overlap(gdd_tokens, _name_tokens(candidate.name)),
+                candidate,
+            )
+            for candidate in code
+            if candidate.entity_id not in consumed
+        ],
+        key=lambda item: item[0],
+    )
+    if scored:
+        highest = scored[-1][0]
+        candidates = [candidate for score, candidate in scored if score == highest]
+        if highest > 0 and len(candidates) == 1:
+            code_entity = candidates[0]
+            return Finding(
+                status="RENAMED?",
+                tracked_entity=entity,
+                code_entity=code_entity,
+                evidence=_evidence(entity, code_entity, code),
+            )
+
     return Finding(
-        status="MATCHED" if code_entity else "MISSING",
+        status="MISSING",
         tracked_entity=entity,
-        code_entity=code_entity,
+        code_entity=None,
+        evidence=_evidence(entity, None, code),
     )
 
 
-def _parse_gdscript(root: Path, relative_path: Path) -> list[CodeEntity]:
+def _token_overlap(left: frozenset[str], right: frozenset[str]) -> float:
+    union = left | right
+    return len(left & right) / len(union) if union else 0.0
+
+
+def _prioritize_entity_kind(
+    tracked: TrackedEntity, candidates: tuple[CodeEntity, ...]
+) -> tuple[CodeEntity, ...]:
+    expected_kind = {
+        "class": "class",
+        "function": "function",
+        "method": "function",
+        "signal": "signal",
+        "variable": "exported_variable",
+        "exportedvariable": "exported_variable",
+        "script": "script",
+    }.get(normalize_name(tracked.entity_type))
+    if expected_kind is not None:
+        typed = tuple(
+            candidate for candidate in candidates if candidate.kind == expected_kind
+        )
+        if typed:
+            return typed
+    priority = {"class": 0, "script": 1}
+    return tuple(
+        sorted(candidates, key=lambda candidate: priority.get(candidate.kind, 2))
+    )
+
+
+def _evidence(
+    tracked: TrackedEntity | None,
+    code_entity: CodeEntity | None,
+    code: tuple[CodeEntity, ...],
+) -> FindingEvidence:
+    return FindingEvidence(
+        gdd_path=tracked.path if tracked else None,
+        gdd_line=tracked.line if tracked else None,
+        code_path=code_entity.path if code_entity else None,
+        code_line=code_entity.line if code_entity else None,
+        code_symbol_path=code_entity.symbol_path if code_entity else None,
+        containment_path=_containment_path(code_entity, code),
+    )
+
+
+def _containment_path(
+    code_entity: CodeEntity | None, code: tuple[CodeEntity, ...]
+) -> tuple[str, ...]:
+    by_id = {entity.entity_id: entity for entity in code}
+    path: list[str] = []
+    current = code_entity
+    while current is not None:
+        path.append(current.symbol_path or current.name)
+        current = by_id.get(current.parent_id or "")
+    return tuple(reversed(path))
+
+
+def _parse_gdscript(
+    root: Path, relative_path: Path
+) -> tuple[list[CodeEntity], list[Relationship]]:
     path = root / relative_path
     try:
         source = path.read_bytes()
@@ -297,6 +467,8 @@ def _parse_gdscript(root: Path, relative_path: Path) -> list[CodeEntity]:
     if tree.root_node.has_error:
         raise ScanFailure("UNSUPPORTED_SOURCE", "could not parse GDScript input", path)
     entities: list[CodeEntity] = []
+    relationships: list[Relationship] = []
+    script_entity: CodeEntity | None = None
     extends = next(
         (
             child
@@ -305,33 +477,170 @@ def _parse_gdscript(root: Path, relative_path: Path) -> list[CodeEntity]:
         ),
         None,
     )
-    if extends is not None:
-        script_name = relative_path.stem
-        entities.append(
-            CodeEntity(
-                name=script_name,
-                normalized_name=normalize_name(script_name),
-                kind="script",
-                path=str(relative_path),
-                line=extends.start_point.row + 1,
+    script_name = relative_path.stem
+    script_entity = _make_code_entity(
+        relative_path,
+        name=script_name,
+        kind="script",
+        line=extends.start_point.row + 1 if extends else 1,
+        parent=None,
+    )
+    entities.append(script_entity)
+
+    class_entity = next(
+        (
+            _make_code_entity(
+                relative_path,
+                name=_node_name(source, node),
+                kind="class",
+                line=_node_line(node),
+                parent=None,
             )
-        )
-    for node in _walk(tree.root_node):
-        if node.type not in {"class_definition", "class_name_statement"}:
-            continue
-        name_node = node.child_by_field_name("name")
-        if name_node is not None:
-            name = source[name_node.start_byte : name_node.end_byte].decode("utf-8")
-            entities.append(
-                CodeEntity(
-                    name=name,
-                    normalized_name=normalize_name(name),
+            for node in tree.root_node.children
+            if node.type == "class_name_statement"
+            and node.child_by_field_name("name") is not None
+        ),
+        None,
+    )
+    if class_entity is not None:
+        entities.append(class_entity)
+    default_parent = class_entity or script_entity
+
+    def visit(
+        node: Node, parent: CodeEntity | None, exported_variable: bool = False
+    ) -> None:
+        if node.type in {"class_name_statement", "extends_statement"}:
+            return
+        current_parent = parent
+        if node.type == "class_definition":
+            name_node = node.child_by_field_name("name")
+            if name_node is not None:
+                class_entity_for_node = _make_code_entity(
+                    relative_path,
+                    name=_node_name(source, node),
                     kind="class",
-                    path=str(relative_path),
                     line=name_node.start_point.row + 1,
+                    parent=parent,
                 )
+                entities.append(class_entity_for_node)
+                _add_relationship(relationships, parent, class_entity_for_node)
+                current_parent = class_entity_for_node
+        elif node.type == "function_definition":
+            name_node = node.child_by_field_name("name")
+            if name_node is not None:
+                function_entity = _make_code_entity(
+                    relative_path,
+                    name=_node_name(source, node),
+                    kind="function",
+                    line=name_node.start_point.row + 1,
+                    parent=parent,
+                )
+                entities.append(function_entity)
+                _add_relationship(relationships, parent, function_entity)
+                current_parent = function_entity
+        elif node.type == "signal_statement":
+            signal_entity = _make_code_entity(
+                relative_path,
+                name=_node_name(source, node),
+                kind="signal",
+                line=_node_line(node),
+                parent=parent,
             )
-    return entities
+            entities.append(signal_entity)
+            _add_relationship(relationships, parent, signal_entity)
+        elif node.type == "variable_statement" and (
+            exported_variable or _is_exported(node)
+        ):
+            variable_entity = _make_code_entity(
+                relative_path,
+                name=_node_name(source, node),
+                kind="exported_variable",
+                line=_node_line(node),
+                parent=parent,
+            )
+            entities.append(variable_entity)
+            _add_relationship(relationships, parent, variable_entity)
+        for index, child in enumerate(node.children):
+            previous = node.children[index - 1] if index else None
+            visit(
+                child,
+                current_parent,
+                exported_variable=(
+                    child.type == "variable_statement"
+                    and previous is not None
+                    and _is_export_annotation(previous)
+                ),
+            )
+
+    for index, child in enumerate(tree.root_node.children):
+        previous = tree.root_node.children[index - 1] if index else None
+        visit(
+            child,
+            default_parent if child.type != "class_definition" else None,
+            exported_variable=(
+                child.type == "variable_statement"
+                and previous is not None
+                and _is_export_annotation(previous)
+            ),
+        )
+    return entities, relationships
+
+
+def _node_name(source: bytes, node: Node) -> str:
+    name_node = node.child_by_field_name("name")
+    if name_node is None:
+        return ""
+    return source[name_node.start_byte : name_node.end_byte].decode("utf-8")
+
+
+def _node_line(node: Node) -> int:
+    name_node = node.child_by_field_name("name")
+    assert name_node is not None
+    return name_node.start_point.row + 1
+
+
+def _is_exported(node: Node) -> bool:
+    return "@export" in (node.text or b"").decode("utf-8").split(" var ", maxsplit=1)[0]
+
+
+def _is_export_annotation(node: Node) -> bool:
+    return (
+        node.type == "annotation"
+        and (node.text or b"").decode("utf-8").strip() == "@export"
+    )
+
+
+def _make_code_entity(
+    relative_path: Path,
+    *,
+    name: str,
+    kind: str,
+    line: int,
+    parent: CodeEntity | None,
+) -> CodeEntity:
+    symbol_path = f"{parent.symbol_path}.{name}" if parent else name
+    entity_id = f"{relative_path.as_posix()}::{kind}:{symbol_path}"
+    return CodeEntity(
+        name=name,
+        normalized_name=normalize_name(name),
+        kind=kind,
+        path=str(relative_path),
+        line=line,
+        entity_id=entity_id,
+        symbol_path=symbol_path,
+        parent_id=parent.entity_id if parent else None,
+    )
+
+
+def _add_relationship(
+    relationships: list[Relationship],
+    parent: CodeEntity | None,
+    child: CodeEntity,
+) -> None:
+    if parent is not None:
+        relationships.append(
+            Relationship(source_id=parent.entity_id, target_id=child.entity_id)
+        )
 
 
 def _walk(node: Node) -> Iterator[Node]:
@@ -358,16 +667,21 @@ def _write_artifacts(root: Path, result: ScanResult) -> None:
         "",
     ]
     for finding in result.findings:
-        evidence = f"{finding.tracked_entity.path}:{finding.tracked_entity.line}"
+        if finding.tracked_entity:
+            label = finding.tracked_entity.name
+            evidence = f"{finding.tracked_entity.path}:{finding.tracked_entity.line}"
+        elif finding.code_entity:
+            label = finding.code_entity.name
+            evidence = f"code {finding.code_entity.path}:{finding.code_entity.line}"
+        else:
+            label = "Unknown"
+            evidence = "no evidence"
         code_evidence = (
             f"; code {finding.code_entity.path}:{finding.code_entity.line}"
             if finding.code_entity
             else ""
         )
-        lines.append(
-            f"- {finding.status}: {finding.tracked_entity.name} "
-            f"({evidence}{code_evidence})"
-        )
+        lines.append(f"- {finding.status}: {label} ({evidence}{code_evidence})")
     if result.candidates:
         lines.extend(["", "## Candidates", ""])
         for candidate in result.candidates:
