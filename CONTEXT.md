@@ -5,24 +5,32 @@ This context defines the product language for the Codex plugin that detects drif
 ## Product surface
 
 **Codex plugin**:
-The primary user-facing integration for running drift detection inside a Codex development session.
-_Avoid_: Claude Code plugin, MCP server (unless referring to a future adapter)
+The primary user-facing integration that runs inside a Codex session to align a project's GDD with its codebase via local skills and the shared detector engine.
+_Avoid_: Godot editor plugin, Claude Code plugin, MCP server (unless referring to a future host adapter)
 
 **Showcase website**:
 A supporting product experience that demonstrates the problem, workflow, and value of the Codex plugin.
 _Avoid_: the product itself, marketing site (when referring to the interactive demo)
 
 **Plugin download**:
-The website-provided package or repository instructions that let a user install the local Codex plugin.
-_Avoid_: marketplace listing (for the MVP distribution path)
+The website-provided standalone package and instructions that let a user install the local Codex plugin without cloning the detector monorepo.
+_Avoid_: marketplace listing (for the MVP distribution path), repository adapter ZIP (when referring to the intended MVP artifact)
+
+**Standalone plugin package**:
+The versioned install ZIP that embeds the Codex plugin, detector engine sources, and lock data so first-run provisioning needs `uv` but not `GDD_DETECTOR_ROOT` or a separate detector checkout.
+_Avoid_: monorepo checkout, repository adapter
 
 **Showcase game**:
-The small Godot 4 deck-builder project used both as the playable web demo and as the detector's representative fixture.
-_Avoid_: separate web replica, mock game
+The frozen sample Godot 4 deck-builder used as the playable web demo and detector fixture; it is not a living product under active gameplay development.
+_Avoid_: separate web replica, mock game, shipped game, living product
 
 **Fixture Godot pin**:
-The exact Godot editor and export-template version required to open, headless-validate, and Web-export the showcase game; currently `4.6.3`.
-_Avoid_: supported Godot version, latest Godot, Godot 4 (when referring to the showcase runtime)
+The exact Godot editor and export-template version used to produce the Showcase Web export for the showcase game; currently `4.6.3`. Pin proof for MVP is version metadata plus a committed, playable export—not headless editor automation.
+_Avoid_: supported Godot version, latest Godot, Godot 4 (when referring to the showcase runtime), headless CI requirement
+
+**Godot build sandbox**:
+A disposable Windows working copy of the showcase fixture used only when the Godot editor cannot open the WSL tree; intentional outputs are synced back into the monorepo, which remains source of truth.
+_Avoid_: dual long-lived trees, Windows as fixture source of truth
 
 **Showcase Web export**:
 The committed Godot Web build served by the showcase website at `showcase/site/public/game/`, generated from the pinned showcase game.
@@ -41,8 +49,8 @@ The visitor action the website is designed to earn: installing the local Codex p
 _Avoid_: signup, download (when the install action is the intended outcome)
 
 **Install handoff**:
-The website’s concrete instructions and artifact that move a visitor from the showcase to a local Codex plugin installation.
-_Avoid_: onboarding funnel (for this local workflow)
+The website’s concrete instructions and standalone plugin package that move a visitor from the showcase to a local Codex plugin installation.
+_Avoid_: onboarding funnel (for this local workflow), monorepo-only install
 
 **Finding walkthrough**:
 The website interaction that connects a playable showcase-game state to the corresponding drift report finding.
@@ -73,8 +81,8 @@ A drift result that a target developer can understand, verify against its eviden
 _Avoid_: merely detected, accurate (unless measured formally)
 
 **Showcase validation**:
-The initial validation of the end-to-end product workflow against the stable showcase fixture, before testing with external developer repositories.
-_Avoid_: production validation, user validation (until that phase begins)
+The initial validation of the end-to-end product workflow against the stable showcase fixture, before testing with external developer repositories; for MVP this is pin metadata, committed Showcase Web export, and a playable iframe encounter.
+_Avoid_: production validation, user validation (until that phase begins), headless Godot gate
 
 **Plugin runtime**:
 The local execution environment used by the Codex plugin to run the detector engine and its parsers.
@@ -82,11 +90,15 @@ _Avoid_: cloud runtime (for the MVP)
 
 **Plugin command**:
 The user-invoked `/detect-drift` Codex workflow that starts a local drift scan and returns its summary and artifacts.
-_Avoid_: MCP tool (unless describing a future transport adapter)
+_Avoid_: MCP tool (unless describing a future transport adapter), setup skill (which does not run a drift scan)
+
+**Setup skill**:
+The Codex skill that prepares a GDD source set by asking the user to provide an existing GDD or by grilling them about design until a draft is ready in-session.
+_Avoid_: detect-drift, detector engine, silent repo scaffolding, Godot project generator
 
 **Host adapter**:
-A tool-specific entry point that invokes the shared local detector, such as the primary Codex command or a future Cursor integration.
-_Avoid_: separate detector (adapters should not fork detection logic)
+A tool-specific entry point around the shared detector engine or related local skills, such as the primary Codex plugin; Cursor and MCP are future adapters, not shipped MVP hosts.
+_Avoid_: separate detector (adapters should not fork detection logic), Godot editor plugin
 
 **Detector engine**:
 The transport-independent capability that parses design documentation and source code, compares their entities, and produces drift findings.

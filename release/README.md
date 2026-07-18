@@ -3,6 +3,7 @@
 Run from repository root:
 
 ```sh
+python3 scripts/build_standalone_plugin_zip.py
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
@@ -14,6 +15,13 @@ python3 "$CODEX_PLUGIN_CREATOR_ROOT/scripts/validate_plugin.py" plugins/gdd-drif
 
 `release/manifest.json` pins detector, plugin, fixture, and showcase versions. Godot Web
 export must be generated with the pinned `showcase/godot-deckbuilder/.godot-version` before
-publishing. Set `CODEX_PLUGIN_CREATOR_ROOT` to the plugin-creator skill directory for the
-optional validator command. Acceptance tests skip Godot runtime checks when Godot is not
-installed and skip Web validation until `public/game/index.html` exists.
+publishing when the frozen sample changes. Set `CODEX_PLUGIN_CREATOR_ROOT` to the
+plugin-creator skill directory for the optional validator command. Acceptance tests may
+skip optional headless Godot checks; headless is not an MVP release gate. Web validation
+requires `public/game/index.html`.
+
+The downloadable artifact at `showcase/site/public/downloads/gdd-drift-detector.zip`
+must be the **Standalone plugin package**: marketplace metadata, plugin skills
+(`setup-gdd`, `detect-drift`), launcher, detector `src/`, `pyproject.toml`, and
+`uv.lock`. Rebuild it with `python3 scripts/build_standalone_plugin_zip.py`
+before release checks.

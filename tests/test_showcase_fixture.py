@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-FIXTURE = Path(__file__).parents[1] / "showcase" / "godot-deckbuilder"
+ROOT = Path(__file__).parents[1]
+FIXTURE = ROOT / "showcase" / "godot-deckbuilder"
 
 
 def test_showcase_fixture_is_traceable_and_declares_required_inputs() -> None:
@@ -14,6 +15,20 @@ def test_showcase_fixture_is_traceable_and_declares_required_inputs() -> None:
     assert (FIXTURE / "main.tscn").is_file()
     assert (FIXTURE / "export_presets.cfg").read_text().find('platform="Web"') >= 0
     assert (FIXTURE / "WEB_EXPORT.md").is_file()
+
+
+def test_fixture_pin_matches_release_manifest_and_committed_web_export() -> None:
+    """MVP showcase validation: pin metadata + committed export (no headless)."""
+    manifest = json.loads((ROOT / "release" / "manifest.json").read_text())
+    export = ROOT / "showcase" / "site" / "public" / "game" / "index.html"
+
+    assert manifest["fixture"]["godot_version"] == "4.6.3"
+    assert (FIXTURE / ".godot-version").read_text().strip() == manifest["fixture"][
+        "godot_version"
+    ]
+    assert export.is_file()
+    assert "Godot" in export.read_text()
+    assert manifest["showcase"]["web_export_status"] == "present"
 
 
 def test_showcase_gameplay_contract_has_cards_energy_and_win_loss_states() -> None:

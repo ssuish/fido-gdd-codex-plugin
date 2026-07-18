@@ -1,7 +1,7 @@
 {
   "name": "gdd-drift-detector-repo",
   "interface": {
-    "displayName": "GDD Drift Detector Repo"
+    "displayName": "GDD Drift Detector"
   },
   "plugins": [
     {

@@ -113,24 +113,37 @@ print(result.summary.coverage_percent)
 
 ## Codex plugin
 
-The local plugin is in `plugins/gdd-drift-detector`. Its launcher provisions a
-versioned cache, installs from the repository lockfile, and runs the detector
-without network access after dependencies are available. The launcher expects
-the detector repository root; set `GDD_DETECTOR_ROOT` when invoking it outside
-this checkout. The repository marketplace metadata is in `marketplace.json`.
+The local Codex plugin is in `plugins/gdd-drift-detector`. It is a **host
+adapter** for Codex (not a Godot editor plugin). The launcher provisions a
+versioned cache with **`uv`**, installs from the embedded lockfile, and runs the
+detector without network access after dependencies are available.
 
-Run the adapter directly from the repository:
+**Install handoff** uses the **Standalone plugin package** at
+`showcase/site/public/downloads/gdd-drift-detector.zip`. That ZIP embeds the
+plugin, detector sources, `pyproject.toml`, and `uv.lock`, so users do not need
+a monorepo checkout. `GDD_DETECTOR_ROOT` remains an optional fallback.
+
+Rebuild the downloadable ZIP after plugin or detector packaging changes:
+
+```sh
+python3 scripts/build_standalone_plugin_zip.py
+```
+
+Repository marketplace metadata is in `marketplace.json`. Skills:
+
+- `setup-gdd` — bring-or-grill GDD convention setup (chat-first; no silent writes)
+- `detect-drift` — read-only local drift scan
+
+Run the adapter from this repository or an extracted standalone package:
 
 ```sh
 python3 plugins/gdd-drift-detector/scripts/detect-drift.py \
-  --project-root /path/to/godot-project \
-  --detector-root /path/to/codex-hackathon
+  --project-root /path/to/godot-project
 ```
 
-When the plugin and detector repository are separate, set `GDD_DETECTOR_ROOT`
-instead. The first run may provision a cached environment; later scans run
-without network or telemetry. The documented Codex surface is
-`$gdd-drift-detector:detect-drift` (`/detect-drift` is the product shorthand).
+The documented Codex surfaces are `$gdd-drift-detector:setup-gdd` and
+`$gdd-drift-detector:detect-drift` (`/detect-drift` is the scan shorthand).
+Cursor and MCP remain future host adapters, not MVP ship targets.
 
 ## Showcase and fixture
 
@@ -155,27 +168,22 @@ the fixture report changes. The embedded Godot Web build lives at
 ## Release verification
 
 Run the commands in [`release/README.md`](release/README.md). The release
-manifest pins package, artifact, plugin, fixture, and showcase paths. The
-current environment may skip headless Godot checks when the editor is absent;
-the Showcase Web export is present at `showcase/site/public/game/index.html`.
+manifest pins package, artifact, plugin, fixture, and showcase paths. Headless
+Godot is not an MVP gate (see `docs/adr/0037-showcase-validation-without-headless.md`);
+WSL/CI may skip the optional headless test. The Showcase Web export is present at
+`showcase/site/public/game/index.html`.
 
-Known boundary: the downloadable ZIP is the Codex plugin adapter and install
-metadata. It uses this detector checkout (or `GDD_DETECTOR_ROOT`) as its runtime
-source; it is not a standalone bundled detector distribution.
+Known boundary: the downloadable ZIP is the **Standalone plugin package**
+(plugin + detector + lock data). First-run provisioning requires `uv`; local
+scans stay offline afterward. See ADR 0038.
 
 ## Future MVP completion plan
 
-The implementation plan for issues #4–#9 is complete. Remaining MVP closure:
+Issues #4–#6 are done. Remaining closure (grilled 2026-07-18); tracked in #13:
 
-1. Install Godot 4.6.3 (and matching Web export templates) on Windows.
-2. Run fixture headless validation (`godot --headless --path showcase/godot-deckbuilder --quit`).
-3. Confirm the Web export at `showcase/site/public/game/index.html` still matches the fixture.
-4. Rerun release acceptance checks.
-5. Add and run browser-level checks for loading, selection, keyboard access,
-   mobile layout, themes, and reduced motion.
-6. Decide whether the plugin ZIP should remain a repository adapter or become a
-   standalone detector package.
-7. Publish `main` when external release approval is available.
+1. **Close #7** — frozen showcase sample: pin `4.6.3`, committed Web export, playable iframe. No headless requirement.
+2. **Close #8** — ship the **Standalone plugin package** (plugin + detector in one ZIP; first run may use `uv` for pinned deps).
+3. **#9 / epic #1** — add the bring-or-grill **Setup skill**; rerun WSL acceptance (`pytest`, ruff, mypy, showcase); confirm version alignment; publish when approved.
+4. Docs may note Cursor/MCP as future **host adapters**; they are not MVP ship targets.
 
-The repository is ready for local detector and report use. Godot runtime and
-Web-export validation remain explicitly pending.
+Out of MVP: headless/CI Godot, thawing the showcase game, browser a11y matrix, auto-writing GDD files from detect-drift.

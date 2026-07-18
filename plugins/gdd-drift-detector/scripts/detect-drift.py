@@ -13,6 +13,26 @@ from pathlib import Path
 VERSION = "0.1.0"
 
 
+def resolve_detector_root(
+    plugin_root: Path, explicit: Path | None = None
+) -> Path | None:
+    """Prefer plugin-local package root; GDD_DETECTOR_ROOT is fallback only."""
+    if explicit is not None:
+        return explicit.resolve()
+
+    package_root = plugin_root.parents[1]
+    if (package_root / "pyproject.toml").is_file() and (
+        package_root / "src" / "gdd_drift_detector"
+    ).is_dir():
+        return package_root.resolve()
+
+    env_root = os.environ.get("GDD_DETECTOR_ROOT")
+    if env_root:
+        return Path(env_root).resolve()
+
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project-root", required=True, type=Path)
@@ -26,14 +46,11 @@ def main() -> int:
     args = parser.parse_args()
 
     plugin_root = Path(__file__).resolve().parents[1]
-    repository_root = args.detector_root or Path(
-        os.environ.get("GDD_DETECTOR_ROOT", plugin_root.parents[1])
-    )
-    repository_root = repository_root.resolve()
-    if not (repository_root / "pyproject.toml").is_file():
+    repository_root = resolve_detector_root(plugin_root, args.detector_root)
+    if repository_root is None or not (repository_root / "pyproject.toml").is_file():
         print(
-            "detector runtime unavailable; set GDD_DETECTOR_ROOT to detector "
-            "repository",
+            "detector runtime unavailable; install the standalone plugin package "
+            "(with pyproject.toml, uv.lock, and src/) or set GDD_DETECTOR_ROOT",
             file=sys.stderr,
         )
         return 2

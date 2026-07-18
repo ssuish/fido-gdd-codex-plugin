@@ -144,7 +144,7 @@ function App() {
         <div>
           <p className="eyebrow">LOCAL INSTALL</p>
           <h2 id="install-title">Keep project content on your machine.</h2>
-          <p>Install the Codex command, point it at a Godot project, and get a report you can commit beside your work.</p>
+          <p>Download the standalone Codex plugin ZIP (requires <code>uv</code> on first run), use <code>setup-gdd</code> to prepare a GDD source set, then run <code>detect-drift</code> for a local report you can commit beside your work.</p>
         </div>
         <div className="install-command">
           <code>codex plugin marketplace add ./marketplace.json</code>
