@@ -1,0 +1,36 @@
+# Godot 4
+.godot/
+.import/
+export_credentials.cfg
+export_presets.cfg.uid
+*.translation
+
+# Editor / OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+*:Zone.Identifier
+*.tmp
+*~
+
+# Nested tooling (fixture lives in the monorepo)
+.agents/
+.claude/
+.cursor/
+.git/
+
+# Local exports / builds (canonical Web build is showcase/site/public/game/)
+web/
+android/
+ios/
+.build/
+*.apk
+*.aab
+*.ipa
+*.pck
+*.zip
+
+# Python / detector scratch beside the fixture
+__pycache__/
+.venv/
+*.pyc

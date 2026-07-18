@@ -1,13 +1,17 @@
 # Web export
 
-Godot version: `4.3.0`.
+Godot version: `4.6.3`.
 
-After installing that pinned editor, export same fixture with:
+After installing that pinned editor and matching Web export templates, export the
+fixture into the showcase site (canonical embed path):
 
 ```sh
 godot --headless --path showcase/godot-deckbuilder \
-  --export-release Web showcase/godot-deckbuilder/web/index.html
+  --export-release godot-showcase showcase/site/public/game/godot-showcase.html
+cp showcase/site/public/game/godot-showcase.html \
+  showcase/site/public/game/index.html
 ```
 
-The generated `web/` directory is release output, not detector input. Release verification
-must confirm it was generated from this fixture commit before publishing the showcase.
+The site iframe loads `index.html`; keep it as a copy of the Godot HTML shell so
+asset basenames stay `godot-showcase.*`. Do not keep a second export tree under
+`showcase/godot-deckbuilder/web/`.

@@ -95,7 +95,7 @@ function App() {
           <a className="primary-button" href="#install">Install the plugin</a>
         </div>
         <div className="hero-signal" aria-label="Current fixture scan summary">
-          <div className="signal-line"><span>FIXTURE</span><strong>DECK BUILDER / ONE ENCOUNTER</strong></div>
+          <div className="signal-line"><span>FIXTURE</span><strong>DECK BUILDER / THREE ENCOUNTERS</strong></div>
           <div className="signal-number">{coverage}</div>
           <div className="signal-caption">active tracked coverage</div>
           <div className="signal-meta"><span>{report.summary.matched} matched</span><span>{report.summary.total} evaluated</span><span>{report.state}</span></div>

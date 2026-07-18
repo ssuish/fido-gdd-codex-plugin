@@ -10,7 +10,7 @@
   },
   "fixture": {
     "path": "showcase/godot-deckbuilder",
-    "godot_version": "4.3.0"
+    "godot_version": "4.6.3"
   },
   "showcase": {
     "version": "0.1.0",
@@ -19,6 +19,6 @@
     "marketplace": "showcase/site/public/marketplace.json",
     "plugin_zip": "showcase/site/public/downloads/gdd-drift-detector.zip",
     "web_export": "showcase/site/public/game/index.html",
-    "web_export_status": "required-before-publish"
+    "web_export_status": "present"
   }
 }

@@ -20,6 +20,14 @@ _Avoid_: marketplace listing (for the MVP distribution path)
 The small Godot 4 deck-builder project used both as the playable web demo and as the detector's representative fixture.
 _Avoid_: separate web replica, mock game
 
+**Fixture Godot pin**:
+The exact Godot editor and export-template version required to open, headless-validate, and Web-export the showcase game; currently `4.6.3`.
+_Avoid_: supported Godot version, latest Godot, Godot 4 (when referring to the showcase runtime)
+
+**Showcase Web export**:
+The committed Godot Web build served by the showcase website at `showcase/site/public/game/`, generated from the pinned showcase game.
+_Avoid_: fixture `web/` directory, dual export copies, synthetic HTML game shell
+
 **Showcase slice**:
 The smallest playable deck-builder loop that makes the drift problem legible to a visitor.
 _Avoid_: full game, production-ready game
@@ -100,7 +108,7 @@ _Avoid_: missing entity, future feature (unless referring to an unmarked concept
 
 **Supported project**:
 A Godot 4 project whose gameplay implementation is written in GDScript and can be inspected locally by the plugin.
-_Avoid_: engine-agnostic project (for MVP scope)
+_Avoid_: engine-agnostic project (for MVP scope), fixture Godot pin (detector input is any Godot 4 + GDScript project within conventions, not only the pinned showcase runtime)
 
 **Entity graph**:
 The set of GDD and GDScript entities plus their containment relationships.

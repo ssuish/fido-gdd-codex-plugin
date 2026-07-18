@@ -134,7 +134,7 @@ without network or telemetry. The documented Codex surface is
 
 ## Showcase and fixture
 
-`showcase/godot-deckbuilder` is the deterministic Godot 4.3 fixture. Its GDD,
+`showcase/godot-deckbuilder` is the deterministic Godot 4.6.3 fixture. Its GDD,
 scripts, generated `drift.json`, and `drift_report.md` deliberately exercise all
 required finding statuses, including `CANDIDATE` and `PLANNED`. The React/Vite
 showcase loads that report and exposes
@@ -149,15 +149,15 @@ npm run showcase:test
 ```
 
 The site is linked to `showcase/site/public/drift.json`; regenerate it only when
-the fixture report changes. The optional embedded Godot Web game is a release
-artifact, not a prerequisite for the detector or report viewer.
+the fixture report changes. The embedded Godot Web build lives at
+`showcase/site/public/game/index.html` (Showcase Web export).
 
 ## Release verification
 
 Run the commands in [`release/README.md`](release/README.md). The release
 manifest pins package, artifact, plugin, fixture, and showcase paths. The
-current environment has no Godot 4.3 editor, so headless Godot and Web-export
-checks remain explicit expected skips until that export is generated.
+current environment may skip headless Godot checks when the editor is absent;
+the Showcase Web export is present at `showcase/site/public/game/index.html`.
 
 Known boundary: the downloadable ZIP is the Codex plugin adapter and install
 metadata. It uses this detector checkout (or `GDD_DETECTOR_ROOT`) as its runtime
@@ -167,9 +167,9 @@ source; it is not a standalone bundled detector distribution.
 
 The implementation plan for issues #4–#9 is complete. Remaining MVP closure:
 
-1. Install Godot 4.3.
-2. Run fixture headless validation.
-3. Generate the Web export at `showcase/site/public/game/index.html`.
+1. Install Godot 4.6.3 (and matching Web export templates) on Windows.
+2. Run fixture headless validation (`godot --headless --path showcase/godot-deckbuilder --quit`).
+3. Confirm the Web export at `showcase/site/public/game/index.html` still matches the fixture.
 4. Rerun release acceptance checks.
 5. Add and run browser-level checks for loading, selection, keyboard access,
    mobile layout, themes, and reduced motion.
