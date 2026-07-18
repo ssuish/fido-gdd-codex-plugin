@@ -41,13 +41,14 @@ def test_scan_returns_exact_normalized_matches_and_writes_root_artifacts(
     assert result.duration_ms >= 0
     assert (root / "drift_report.md").is_file()
     artifact = json.loads((root / "drift.json").read_text())
-    assert artifact["schema_version"] == "1.0"
+    assert artifact["schema_version"] == "1.1"
     assert set(artifact) == {
         "schema_version",
         "scan",
         "tracked_entities",
         "code_entities",
         "findings",
+        "candidates",
         "summary",
     }
     assert artifact["findings"][0]["status"] == "MATCHED"
@@ -253,3 +254,150 @@ def test_non_gd_source_input_is_rejected(tmp_path: Path) -> None:
 
     assert failure.value.code == "UNSUPPORTED_INPUT"
     assert not (root / "drift.json").exists()
+
+
+def test_scan_discovers_conventional_project_inputs(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "notes.md").write_text("# Not authoritative\n")
+    (root / "docs" / "gdd").mkdir(parents=True)
+    (root / "docs" / "gdd" / "combat.md").write_text("[entity: system] CombatSystem\n")
+    (root / "scripts" / "combat_system.gd").write_text("extends Node\n")
+
+    result = scan(root)
+
+    assert [entity.path for entity in result.tracked_entities] == [
+        "GDD.md",
+        "docs/gdd/combat.md",
+    ]
+    assert sorted({entity.path for entity in result.code_entities}) == [
+        "scripts/combat_system.gd",
+        "scripts/player_controller.gd",
+    ]
+    assert result.summary.coverage_percent == 100.0
+
+
+def test_planned_marker_is_order_independent_and_excluded_from_coverage(
+    tmp_path: Path,
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text(
+        "[entity: system] PlayerController\n"
+        "[entity: system] [planned] FutureSystem\n"
+        "[planned] [entity: ability] FutureAbility\n"
+    )
+
+    result = scan(root)
+
+    assert [finding.status for finding in result.findings] == [
+        "MATCHED",
+        "PLANNED",
+        "PLANNED",
+    ]
+    assert result.summary.matched == 1
+    assert result.summary.total == 1
+    assert result.summary.coverage_percent == 100.0
+    assert "PLANNED: FutureSystem" in (root / "drift_report.md").read_text()
+
+
+def test_unmarked_headings_and_list_items_are_advisory_candidates(
+    tmp_path: Path,
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text(
+        "# Combat\n- Reward loop\nSome prose stays advisory.\n"
+    )
+
+    result = scan(root)
+
+    assert result.tracked_entities == ()
+    assert [candidate.name for candidate in result.candidates] == [
+        "Combat",
+        "Reward loop",
+    ]
+    assert result.summary.coverage_percent is None
+    report = (root / "drift_report.md").read_text()
+    assert "Coverage: 0/0 (N/A)" in report
+    assert "CANDIDATE: Combat" in report
+    assert "Add [entity: type]" in report
+
+
+def test_drift_toml_overrides_discovery_excludes_and_maps_names(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "custom.md").write_text("[entity: system] Health Potion\n")
+    (root / "scripts" / "healing_item.gd").write_text("extends Node\n")
+    drift_config = root / "drift.toml"
+    drift_config.write_text(
+        "[discovery]\n"
+        'gdd = ["custom.md"]\n'
+        'sources = ["scripts/**/*.gd"]\n'
+        'exclude = ["scripts/player_controller.gd"]\n\n'
+        "[accepted_mappings]\n"
+        '"Health Potion" = "healing_item"\n'
+    )
+    before = drift_config.read_bytes()
+
+    result = scan(root)
+
+    assert [entity.path for entity in result.tracked_entities] == ["custom.md"]
+    assert [entity.path for entity in result.code_entities] == [
+        "scripts/healing_item.gd"
+    ]
+    assert result.findings[0].status == "MATCHED"
+    assert drift_config.read_bytes() == before
+
+
+def test_explicit_config_remains_supported_with_project_config_present(
+    tmp_path: Path,
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "drift.toml").write_text('[discovery]\ngdd = ["missing.md"]\n')
+
+    result = scan(root, default_scan_config())
+
+    assert result.summary.coverage_percent == 100.0
+
+
+def test_invalid_drift_toml_is_typed_failure_and_writes_no_artifacts(
+    tmp_path: Path,
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "drift.toml").write_text("[discovery\n")
+
+    with pytest.raises(ScanFailure) as failure:
+        scan(root)
+
+    assert failure.value.code == "INVALID_CONFIG"
+    assert not (root / "drift.json").exists()
+    assert not (root / "drift_report.md").exists()
+
+
+def test_non_godot_4_project_is_rejected(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "project.godot").write_text("config_version=4\n")
+
+    with pytest.raises(ScanFailure) as failure:
+        scan(root)
+
+    assert failure.value.code == "INVALID_PROJECT"
+    assert not (root / "drift.json").exists()
+
+
+def test_cli_discovers_inputs_when_paths_are_omitted(tmp_path: Path) -> None:
+    root = copy_fixture(tmp_path)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "gdd_drift_detector",
+            "--project-root",
+            str(root),
+            "--json",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0
+    assert json.loads(completed.stdout)["summary"]["coverage_percent"] == 100.0

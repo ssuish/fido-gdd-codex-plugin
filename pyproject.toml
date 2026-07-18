@@ -5,6 +5,7 @@ description = "Local, deterministic GDD-to-GDScript drift detection."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+  "tomli>=2,<3",
   "tree-sitter>=0.25,<0.27",
   "tree-sitter-language-pack>=0.13,<0.14",
 ]

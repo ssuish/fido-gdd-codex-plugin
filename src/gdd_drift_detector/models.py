@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal
 
-FindingStatus = Literal["MATCHED", "MISSING"]
+FindingStatus = Literal["MATCHED", "MISSING", "PLANNED"]
 ScanFailureCode = Literal[
     "INVALID_PROJECT",
     "INVALID_CONFIG",
@@ -18,10 +18,10 @@ ScanFailureCode = Literal[
 
 @dataclass(frozen=True)
 class ScanConfig:
-    """Explicit local inputs for the first detector slice, relative to project root."""
+    """Optional explicit local inputs, relative to the project root."""
 
-    gdd_paths: tuple[Path, ...]
-    source_paths: tuple[Path, ...]
+    gdd_paths: tuple[Path, ...] = ()
+    source_paths: tuple[Path, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -31,6 +31,7 @@ class TrackedEntity:
     entity_type: str
     path: str
     line: int
+    planned: bool = False
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -66,7 +67,7 @@ class Finding:
 class ScanSummary:
     matched: int
     total: int
-    coverage_percent: float
+    coverage_percent: float | None
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -79,6 +80,7 @@ class ScanResult:
     tracked_entities: tuple[TrackedEntity, ...]
     code_entities: tuple[CodeEntity, ...]
     findings: tuple[Finding, ...]
+    candidates: tuple[CandidateEntity, ...]
     summary: ScanSummary
     duration_ms: int
 
@@ -92,8 +94,23 @@ class ScanResult:
             "tracked_entities": [entity.to_dict() for entity in self.tracked_entities],
             "code_entities": [entity.to_dict() for entity in self.code_entities],
             "findings": [finding.to_dict() for finding in self.findings],
+            "candidates": [candidate.to_dict() for candidate in self.candidates],
             "summary": self.summary.to_dict(),
         }
+
+
+@dataclass(frozen=True)
+class CandidateEntity:
+    """Advisory Markdown concept that does not affect authoritative coverage."""
+
+    name: str
+    path: str
+    line: int
+    guidance: str = "Add [entity: type] before this name to track it."
+    status: Literal["CANDIDATE"] = "CANDIDATE"
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
 
 
 class ScanFailure(Exception):

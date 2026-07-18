@@ -14,8 +14,8 @@ from .scanner import scan
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project-root", required=True, type=Path)
-    parser.add_argument("--gdd", required=True, action="append", type=Path)
-    parser.add_argument("--source", required=True, action="append", type=Path)
+    parser.add_argument("--gdd", action="append", default=[], type=Path)
+    parser.add_argument("--source", action="append", default=[], type=Path)
     parser.add_argument("--json", required=True, action="store_true")
     args = parser.parse_args()
     try:
