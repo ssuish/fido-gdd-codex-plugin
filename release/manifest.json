@@ -1,0 +1,24 @@
+{
+  "version": "0.1.0",
+  "detector": {
+    "package_version": "0.1.0",
+    "artifact_schema": "1.2"
+  },
+  "plugin": {
+    "name": "gdd-drift-detector",
+    "version": "0.1.0"
+  },
+  "fixture": {
+    "path": "showcase/godot-deckbuilder",
+    "godot_version": "4.3.0"
+  },
+  "showcase": {
+    "version": "0.1.0",
+    "path": "showcase/site",
+    "report": "showcase/site/public/drift.json",
+    "marketplace": "showcase/site/public/marketplace.json",
+    "plugin_zip": "showcase/site/public/downloads/gdd-drift-detector.zip",
+    "web_export": "showcase/site/public/game/index.html",
+    "web_export_status": "required-before-publish"
+  }
+}
