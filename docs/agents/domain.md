@@ -2,6 +2,8 @@
 
 How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
+**Product:** Prefer **Fido** in user-facing language (tagline: *Local design-fidelity checks for your game designs.*). Technical package/plugin id remains `gdd-drift-detector`. See root `CONTEXT.md` for the full vocabulary.
+
 ## Before exploring, read these
 
 - **`CONTEXT.md`** at the repo root, or
@@ -48,4 +50,4 @@ If the concept you need isn't in the glossary yet, that's a signal — either yo
 
 If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
 
-> _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_
+> *Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…*

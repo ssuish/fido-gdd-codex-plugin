@@ -1,18 +1,18 @@
 {
   "name": "gdd-drift-detector",
   "version": "0.1.0",
-  "description": "Local, offline GDD-to-GDScript drift detection for Codex.",
+  "description": "Fido: local design-fidelity checks for your game designs.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
-    "displayName": "GDD Drift Detector",
-    "shortDescription": "Scan local Godot projects for GDD drift.",
-    "longDescription": "Run deterministic, evidence-rich local scans without uploading project files.",
+    "displayName": "Fido",
+    "shortDescription": "Local design-fidelity checks for your game designs.",
+    "longDescription": "Compare your GDD with implementation symbols via offline, evidence-rich local scans. Godot 4 + GDScript today; more engines planned.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "Run a local GDD drift scan for this Godot project."
+    "defaultPrompt": "Run a local Fido design-fidelity (GDD drift) scan for this project."
   }
 }

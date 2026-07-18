@@ -19,6 +19,9 @@ def test_site_consumes_fixture_generated_artifact_without_synthetic_findings() -
     assert 'role="listbox"' in app
     assert "report.candidates" in app
     assert "game-fixture" in app
+    assert '<iframe className="game-embed" src="./game/index.html"' in app
+    assert (SITE / "public" / "game" / "index.html").is_file()
+    assert "Godot" in (SITE / "public" / "game" / "index.html").read_text()
     assert (SITE / "public" / "marketplace.json").is_file()
     assert (SITE / "public" / "downloads" / "gdd-drift-detector.zip").is_file()
 

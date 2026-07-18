@@ -119,12 +119,21 @@ def test_release_versions_and_install_artifacts_are_aligned() -> None:
     assert plugin_zip.is_file()
     assert json.loads(marketplace.read_text())["plugins"][0]["name"] == detector["name"]
     with zipfile.ZipFile(plugin_zip) as archive:
+        names = set(archive.namelist())
         assert {
             "marketplace.json",
+            "pyproject.toml",
+            "uv.lock",
             "plugins/gdd-drift-detector/.codex-plugin/plugin.json",
             "plugins/gdd-drift-detector/skills/detect-drift/SKILL.md",
+            "plugins/gdd-drift-detector/skills/setup-gdd/SKILL.md",
             "plugins/gdd-drift-detector/scripts/detect-drift.py",
-        } <= set(archive.namelist())
+            "src/gdd_drift_detector/__init__.py",
+            "src/gdd_drift_detector/scanner.py",
+        } <= names
+        assert any(
+            name.startswith("src/gdd_drift_detector/") for name in names
+        ), "standalone ZIP must embed detector sources"
 
 
 def test_plugin_manifest_and_skill_contract() -> None:
@@ -133,6 +142,7 @@ def test_plugin_manifest_and_skill_contract() -> None:
 
     assert manifest["name"] == "gdd-drift-detector"
     assert (plugin_root / "skills" / "detect-drift" / "SKILL.md").is_file()
+    assert (plugin_root / "skills" / "setup-gdd" / "SKILL.md").is_file()
     assert (plugin_root / "scripts" / "detect-drift.py").is_file()
 
 
