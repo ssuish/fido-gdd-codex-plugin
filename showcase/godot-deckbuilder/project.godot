@@ -1,5 +1,10 @@
 ; Engine configuration file.
-; Deterministic showcase fixture for GDD Drift Detector.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
@@ -7,11 +12,13 @@ config_version=5
 
 config/name="GDD Drift Detector Deck Builder"
 run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.6")
 
 [display]
 
 window/size/viewport_width=960
 window/size/viewport_height=540
+window/stretch/mode="canvas_items"
 
 [rendering]
 

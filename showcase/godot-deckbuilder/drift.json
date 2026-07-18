@@ -69,7 +69,7 @@
     {
       "entity_id": "deck_builder.gd::exported_variable:DeckBuilder.starting_energy",
       "kind": "exported_variable",
-      "line": 6,
+      "line": 20,
       "name": "starting_energy",
       "normalized_name": "startingenergy",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -79,7 +79,7 @@
     {
       "entity_id": "deck_builder.gd::exported_variable:DeckBuilder.enemy_starting_health",
       "kind": "exported_variable",
-      "line": 7,
+      "line": 21,
       "name": "enemy_starting_health",
       "normalized_name": "enemystartinghealth",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -89,7 +89,7 @@
     {
       "entity_id": "deck_builder.gd::exported_variable:DeckBuilder.player_starting_health",
       "kind": "exported_variable",
-      "line": 8,
+      "line": 22,
       "name": "player_starting_health",
       "normalized_name": "playerstartinghealth",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -97,9 +97,19 @@
       "symbol_path": "DeckBuilder.player_starting_health"
     },
     {
+      "entity_id": "deck_builder.gd::function:DeckBuilder.start_run",
+      "kind": "function",
+      "line": 38,
+      "name": "start_run",
+      "normalized_name": "startrun",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder.start_run"
+    },
+    {
       "entity_id": "deck_builder.gd::function:DeckBuilder.reset_encounter",
       "kind": "function",
-      "line": 18,
+      "line": 45,
       "name": "reset_encounter",
       "normalized_name": "resetencounter",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -107,9 +117,19 @@
       "symbol_path": "DeckBuilder.reset_encounter"
     },
     {
+      "entity_id": "deck_builder.gd::function:DeckBuilder._start_encounter",
+      "kind": "function",
+      "line": 48,
+      "name": "_start_encounter",
+      "normalized_name": "startencounter",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder._start_encounter"
+    },
+    {
       "entity_id": "deck_builder.gd::function:DeckBuilder.draw_card",
       "kind": "function",
-      "line": 29,
+      "line": 63,
       "name": "draw_card",
       "normalized_name": "drawcard",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -117,9 +137,29 @@
       "symbol_path": "DeckBuilder.draw_card"
     },
     {
+      "entity_id": "deck_builder.gd::function:DeckBuilder._draw_hand",
+      "kind": "function",
+      "line": 70,
+      "name": "_draw_hand",
+      "normalized_name": "drawhand",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder._draw_hand"
+    },
+    {
+      "entity_id": "deck_builder.gd::function:DeckBuilder.get_strike_damage",
+      "kind": "function",
+      "line": 74,
+      "name": "get_strike_damage",
+      "normalized_name": "getstrikedamage",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder.get_strike_damage"
+    },
+    {
       "entity_id": "deck_builder.gd::function:DeckBuilder.play_strike",
       "kind": "function",
-      "line": 36,
+      "line": 77,
       "name": "play_strike",
       "normalized_name": "playstrike",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -129,7 +169,7 @@
     {
       "entity_id": "deck_builder.gd::function:DeckBuilder.play_block",
       "kind": "function",
-      "line": 44,
+      "line": 88,
       "name": "play_block",
       "normalized_name": "playblock",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -137,9 +177,19 @@
       "symbol_path": "DeckBuilder.play_block"
     },
     {
+      "entity_id": "deck_builder.gd::function:DeckBuilder._can_play",
+      "kind": "function",
+      "line": 99,
+      "name": "_can_play",
+      "normalized_name": "canplay",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder._can_play"
+    },
+    {
       "entity_id": "deck_builder.gd::function:DeckBuilder.resolve_enemy_turn",
       "kind": "function",
-      "line": 52,
+      "line": 102,
       "name": "resolve_enemy_turn",
       "normalized_name": "resolveenemyturn",
       "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -147,64 +197,54 @@
       "symbol_path": "DeckBuilder.resolve_enemy_turn"
     },
     {
-      "entity_id": "main.gd::script:main",
-      "kind": "script",
-      "line": 1,
-      "name": "main",
-      "normalized_name": "main",
-      "parent_id": null,
-      "path": "main.gd",
-      "symbol_path": "main"
+      "entity_id": "deck_builder.gd::function:DeckBuilder._discard_hand",
+      "kind": "function",
+      "line": 126,
+      "name": "_discard_hand",
+      "normalized_name": "discardhand",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder._discard_hand"
     },
     {
-      "entity_id": "main.gd::function:main._ready",
+      "entity_id": "deck_builder.gd::function:DeckBuilder._finish_encounter",
       "kind": "function",
-      "line": 6,
-      "name": "_ready",
-      "normalized_name": "ready",
-      "parent_id": "main.gd::script:main",
-      "path": "main.gd",
-      "symbol_path": "main._ready"
+      "line": 131,
+      "name": "_finish_encounter",
+      "normalized_name": "finishencounter",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder._finish_encounter"
     },
     {
-      "entity_id": "main.gd::function:main._on_strike_pressed",
+      "entity_id": "deck_builder.gd::function:DeckBuilder.choose_boon",
       "kind": "function",
-      "line": 14,
-      "name": "_on_strike_pressed",
-      "normalized_name": "onstrikepressed",
-      "parent_id": "main.gd::script:main",
-      "path": "main.gd",
-      "symbol_path": "main._on_strike_pressed"
+      "line": 140,
+      "name": "choose_boon",
+      "normalized_name": "chooseboon",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder.choose_boon"
     },
     {
-      "entity_id": "main.gd::function:main._on_block_pressed",
+      "entity_id": "deck_builder.gd::function:DeckBuilder.get_encounter_number",
       "kind": "function",
-      "line": 18,
-      "name": "_on_block_pressed",
-      "normalized_name": "onblockpressed",
-      "parent_id": "main.gd::script:main",
-      "path": "main.gd",
-      "symbol_path": "main._on_block_pressed"
+      "line": 152,
+      "name": "get_encounter_number",
+      "normalized_name": "getencounternumber",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder.get_encounter_number"
     },
     {
-      "entity_id": "main.gd::function:main._on_end_turn_pressed",
+      "entity_id": "deck_builder.gd::function:DeckBuilder.get_total_encounters",
       "kind": "function",
-      "line": 22,
-      "name": "_on_end_turn_pressed",
-      "normalized_name": "onendturnpressed",
-      "parent_id": "main.gd::script:main",
-      "path": "main.gd",
-      "symbol_path": "main._on_end_turn_pressed"
-    },
-    {
-      "entity_id": "main.gd::function:main._refresh_status",
-      "kind": "function",
-      "line": 25,
-      "name": "_refresh_status",
-      "normalized_name": "refreshstatus",
-      "parent_id": "main.gd::script:main",
-      "path": "main.gd",
-      "symbol_path": "main._refresh_status"
+      "line": 155,
+      "name": "get_total_encounters",
+      "normalized_name": "gettotalencounters",
+      "parent_id": "deck_builder.gd::class:DeckBuilder",
+      "path": "deck_builder.gd",
+      "symbol_path": "DeckBuilder.get_total_encounters"
     },
     {
       "entity_id": "orphan_logger.gd::script:orphan_logger",
@@ -247,7 +287,7 @@
         "containment_path": [
           "DeckBuilder"
         ],
-        "gdd_excerpt": "[entity: class] DeckBuilder \u2014 owns one deterministic encounter.",
+        "gdd_excerpt": "[entity: class] DeckBuilder \u2014 owns one deterministic three-encounter run.",
         "gdd_line": 3,
         "gdd_path": "GDD.md"
       },
@@ -265,7 +305,7 @@
       "code_entity": {
         "entity_id": "deck_builder.gd::function:DeckBuilder.draw_card",
         "kind": "function",
-        "line": 29,
+        "line": 63,
         "name": "draw_card",
         "normalized_name": "drawcard",
         "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -274,7 +314,7 @@
       },
       "evidence": {
         "code_excerpt": "func draw_card() -> String:",
-        "code_line": 29,
+        "code_line": 63,
         "code_path": "deck_builder.gd",
         "code_symbol_path": "DeckBuilder.draw_card",
         "containment_path": [
@@ -299,7 +339,7 @@
       "code_entity": {
         "entity_id": "deck_builder.gd::function:DeckBuilder.resolve_enemy_turn",
         "kind": "function",
-        "line": 52,
+        "line": 102,
         "name": "resolve_enemy_turn",
         "normalized_name": "resolveenemyturn",
         "parent_id": "deck_builder.gd::class:DeckBuilder",
@@ -308,7 +348,7 @@
       },
       "evidence": {
         "code_excerpt": "func resolve_enemy_turn() -> int:",
-        "code_line": 52,
+        "code_line": 102,
         "code_path": "deck_builder.gd",
         "code_symbol_path": "DeckBuilder.resolve_enemy_turn",
         "containment_path": [
@@ -408,32 +448,6 @@
     },
     {
       "code_entity": {
-        "entity_id": "main.gd::script:main",
-        "kind": "script",
-        "line": 1,
-        "name": "main",
-        "normalized_name": "main",
-        "parent_id": null,
-        "path": "main.gd",
-        "symbol_path": "main"
-      },
-      "evidence": {
-        "code_excerpt": "extends Node",
-        "code_line": 1,
-        "code_path": "main.gd",
-        "code_symbol_path": "main",
-        "containment_path": [
-          "main"
-        ],
-        "gdd_excerpt": null,
-        "gdd_line": null,
-        "gdd_path": null
-      },
-      "status": "ORPHANED",
-      "tracked_entity": null
-    },
-    {
-      "code_entity": {
         "entity_id": "orphan_logger.gd::script:orphan_logger",
         "kind": "script",
         "line": 1,
@@ -487,12 +501,32 @@
     },
     {
       "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder.start_run",
+      "type": "CONTAINS"
+    },
+    {
+      "source": "deck_builder.gd::class:DeckBuilder",
       "target": "deck_builder.gd::function:DeckBuilder.reset_encounter",
       "type": "CONTAINS"
     },
     {
       "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder._start_encounter",
+      "type": "CONTAINS"
+    },
+    {
+      "source": "deck_builder.gd::class:DeckBuilder",
       "target": "deck_builder.gd::function:DeckBuilder.draw_card",
+      "type": "CONTAINS"
+    },
+    {
+      "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder._draw_hand",
+      "type": "CONTAINS"
+    },
+    {
+      "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder.get_strike_damage",
       "type": "CONTAINS"
     },
     {
@@ -507,32 +541,37 @@
     },
     {
       "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder._can_play",
+      "type": "CONTAINS"
+    },
+    {
+      "source": "deck_builder.gd::class:DeckBuilder",
       "target": "deck_builder.gd::function:DeckBuilder.resolve_enemy_turn",
       "type": "CONTAINS"
     },
     {
-      "source": "main.gd::script:main",
-      "target": "main.gd::function:main._ready",
+      "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder._discard_hand",
       "type": "CONTAINS"
     },
     {
-      "source": "main.gd::script:main",
-      "target": "main.gd::function:main._on_strike_pressed",
+      "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder._finish_encounter",
       "type": "CONTAINS"
     },
     {
-      "source": "main.gd::script:main",
-      "target": "main.gd::function:main._on_block_pressed",
+      "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder.choose_boon",
       "type": "CONTAINS"
     },
     {
-      "source": "main.gd::script:main",
-      "target": "main.gd::function:main._on_end_turn_pressed",
+      "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder.get_encounter_number",
       "type": "CONTAINS"
     },
     {
-      "source": "main.gd::script:main",
-      "target": "main.gd::function:main._refresh_status",
+      "source": "deck_builder.gd::class:DeckBuilder",
+      "target": "deck_builder.gd::function:DeckBuilder.get_total_encounters",
       "type": "CONTAINS"
     },
     {
@@ -542,7 +581,7 @@
     }
   ],
   "scan": {
-    "duration_ms": 5,
+    "duration_ms": 14,
     "project_root": "/home/ssuish/projects/codex-hackathon/showcase/godot-deckbuilder",
     "state": "COMPLETE"
   },
@@ -587,22 +626,6 @@
         },
         "name": "Enemy AI",
         "status": "RENAMED?"
-      },
-      {
-        "evidence": {
-          "code_excerpt": "extends Node",
-          "code_line": 1,
-          "code_path": "main.gd",
-          "code_symbol_path": "main",
-          "containment_path": [
-            "main"
-          ],
-          "gdd_excerpt": null,
-          "gdd_line": null,
-          "gdd_path": null
-        },
-        "name": "main",
-        "status": "ORPHANED"
       },
       {
         "evidence": {

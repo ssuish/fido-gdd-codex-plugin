@@ -1,0 +1,5 @@
+# UI shell is intentionally out of drift scope. The current tree-sitter
+# GDScript grammar also segfaults on this file's Color("#…") / typed
+# ProgressBar constructs, so keep discovery on the scenario scripts only.
+[discovery]
+exclude = ["main.gd"]
