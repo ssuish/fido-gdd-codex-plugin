@@ -1,0 +1,18 @@
+{
+  "name": "gdd-drift-detector",
+  "version": "0.1.0",
+  "description": "Local, offline GDD-to-GDScript drift detection for Codex.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "GDD Drift Detector",
+    "shortDescription": "Scan local Godot projects for GDD drift.",
+    "longDescription": "Run deterministic, evidence-rich local scans without uploading project files.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Run a local GDD drift scan for this Godot project."
+  }
+}
