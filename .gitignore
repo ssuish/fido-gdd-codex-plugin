@@ -71,5 +71,5 @@ tmp/
 temp/
 .tmp/
 
-# agent files
+# Project skills (reinstall with: npx skills experimental_install)
 .agents/
