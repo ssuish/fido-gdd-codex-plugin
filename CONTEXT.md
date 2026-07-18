@@ -1,8 +1,22 @@
-# Drift Detector Product Context
+# Fido Product Context
 
-This context defines the product language for the Codex plugin that detects drift between a game's design documentation and its implementation.
+This context defines the product language for **Fido**, the Codex plugin that
+runs local design-fidelity checks between a game's design documentation and its
+implementation.
+
+**Product name**: Fido  
+**Tagline**: Local design-fidelity checks for your game designs.  
+**Technical package / plugin id** (stable, not user-facing brand): `gdd-drift-detector`
 
 ## Product surface
+
+**Fido**:
+The product name for the local design-fidelity / GDD drift detector experience
+(Codex plugin, detector engine, and showcase). Prefer **Fido** in user-facing
+copy; keep `gdd-drift-detector` for package paths, plugin `name`, skill prefixes,
+and ZIP filenames until those identifiers are deliberately versioned.
+_Avoid_: GDD Drift Detector (legacy working title), Aurora, FIDO Alliance /
+passkey sense of “FIDO”
 
 **Codex plugin**:
 The primary user-facing integration that runs inside a Codex session to align a project's GDD with its codebase via local skills and the shared detector engine.

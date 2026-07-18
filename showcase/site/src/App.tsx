@@ -77,7 +77,7 @@ function App() {
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="wordmark" href="./">GDD / DRIFT DETECTOR</a>
+        <a className="wordmark" href="./">Fido</a>
         <nav aria-label="Primary navigation">
           <a href="#walkthrough">Walkthrough</a>
           <a href="#install">Install</a>
@@ -90,8 +90,8 @@ function App() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
           <p className="eyebrow">LOCAL / EVIDENCE FIRST</p>
-          <h1 id="hero-title">See where design stops matching the game.</h1>
-          <p className="hero-lede">A Codex plugin that compares your GDD with real GDScript, on your machine, before drift becomes rework.</p>
+          <h1 id="hero-title">Fido</h1>
+          <p className="hero-lede">Local design-fidelity checks for your game designs. Today: Godot 4 + GDScript via Codex, on your machine.</p>
           <a className="primary-button" href="#install">Install the plugin</a>
         </div>
         <div className="hero-signal" aria-label="Current fixture scan summary">
@@ -156,7 +156,7 @@ function App() {
         </div>
       </section>
 
-      <footer><span>GDD DRIFT DETECTOR</span><span>Local by default. Evidence over guesswork.</span></footer>
+      <footer><span>Fido</span><span>Local design-fidelity checks for your game designs.</span></footer>
     </main>
   );
 }

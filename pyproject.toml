@@ -1,7 +1,7 @@
 [project]
 name = "gdd-drift-detector"
 version = "0.1.0"
-description = "Local, deterministic GDD-to-GDScript drift detection."
+description = "Fido: local design-fidelity checks for your game designs (GDD drift detection)."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"

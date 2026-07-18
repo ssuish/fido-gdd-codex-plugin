@@ -1,15 +1,20 @@
-# GDD Drift Detector
+# Fido
 
-Local, offline drift detection between your **game design document (GDD)** and
-**Godot 4 / GDScript** implementation — delivered as a **Codex plugin**.
+**Local design-fidelity checks for your game designs.**
 
-Scans run on your machine. After a one-time `uv` provision, the detector does not
-upload project files or call the network.
+Fido compares your marked game design document (GDD) with implementation symbols
+and reports drift with evidence. Today that means **Godot 4 + GDScript** via a
+**Codex plugin**; more engines are planned. Scans run on your machine. After a
+one-time `uv` provision, the detector does not upload project files or call the
+network.
+
+Technical package and plugin id remain `gdd-drift-detector` (paths, ZIP name,
+`$gdd-drift-detector:…` skill prefixes).
 
 ## Who this is for
 
-- **Godot 4** projects whose gameplay code is written in **GDScript**
-- Developers who keep (or want) a marked Markdown GDD next to the project
+- Game developers who keep (or want) a marked Markdown GDD next to the project
+- **Godot 4 + GDScript** projects (current supported stack)
 - Users of **OpenAI Codex** who want a `/detect-drift` workflow in-session
 
 This is **not** a Godot editor plugin. Cursor and MCP hosts are future adapters,
@@ -40,7 +45,7 @@ not the current install path.
 codex plugin marketplace add ./marketplace.json
 ```
 
-1. Confirm the plugin appears in Codex. First drift scan may take a moment while
+1. Confirm **Fido** appears in Codex. First drift scan may take a moment while
    `uv` provisions a cached environment from the embedded lockfile.
 
 **Option B — From this repository**
@@ -178,7 +183,7 @@ print(result.state, result.summary.coverage_percent)
 ## Try the showcase
 
 This repo ships a frozen Godot 4.6.3 deck-builder fixture and a linked React
-site that walks through real drift findings beside a playable Web export.
+site that walks through real Fido findings beside a playable Web export.
 
 ```sh
 npm run showcase:dev
@@ -196,7 +201,7 @@ High-level layout:
 | Path | Role |
 |------|------|
 | `src/gdd_drift_detector/` | Shared detector engine (CLI + `scan()`) |
-| `plugins/gdd-drift-detector/` | Codex host adapter (skills + launcher) |
+| `plugins/gdd-drift-detector/` | Codex host adapter for Fido (skills + launcher) |
 | `showcase/` | Demo site + Godot fixture |
 | `tests/` | Automated tests |
 | `docs/adr/` | Architecture decision records |

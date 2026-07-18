@@ -1,11 +1,11 @@
 ---
 name: setup-gdd
-description: Prepare a GDD source set by bringing an existing design doc or grilling the design in chat until a draft is ready.
+description: Prepare a GDD source set for Fido by bringing an existing design doc or grilling the design in chat until a draft is ready.
 ---
 
 # Setup GDD conventions
 
-Prepare a **GDD source set** for the local drift detector. This skill is
+Prepare a **GDD source set** for **Fido** (local design-fidelity checks). This skill is
 chat-first authoring guidance. It does **not** run a drift scan, does **not**
 invoke `detect-drift`, and must **not** silently create or modify repository
 files (`GDD.md`, `drift.toml`, GDScript, or a Godot project).

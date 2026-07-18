@@ -1,8 +1,12 @@
 # Contributing
 
-Thanks for helping improve GDD Drift Detector. This guide is for humans working
-on the monorepo. End-user install and Codex usage live in the root
-[README.md](README.md).
+Thanks for helping improve **Fido** (local design-fidelity checks for your game
+designs). This guide is for humans working on the monorepo. End-user install and
+Codex usage live in the root [README.md](README.md).
+
+Prefer **Fido** in user-facing copy. Keep the technical id `gdd-drift-detector`
+for package paths, plugin `name`, skill prefixes, and the download ZIP unless a
+change deliberately renames those identifiers.
 
 ## Development setup
 

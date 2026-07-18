@@ -1,5 +1,8 @@
 # MVP release verification
 
+**Product:** **Fido** — local design-fidelity checks for your game designs.
+Technical plugin/package id remains `gdd-drift-detector`.
+
 Run from repository root:
 
 ```sh

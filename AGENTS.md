@@ -2,8 +2,11 @@
 
 ## Project Structure & Module Organization
 
-This repository is the **GDD Drift Detector** monorepo: a local GDD-to-GDScript
-drift engine, a Codex plugin host adapter, and a linked showcase fixture.
+This repository is the **Fido** monorepo: local design-fidelity checks for game
+designs (GDD ↔ implementation drift). Current stack is Godot 4 + GDScript via a
+Codex plugin host adapter and a linked showcase fixture. Product name is
+**Fido**; technical package/plugin id remains `gdd-drift-detector` (see
+`CONTEXT.md`).
 
 - `src/gdd_drift_detector/` — detector package (`scan()`, CLI via
   `python -m gdd_drift_detector`).

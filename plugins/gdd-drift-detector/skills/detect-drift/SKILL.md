@@ -1,11 +1,12 @@
 ---
 name: detect-drift
-description: Run the local GDD-to-GDScript drift detector and summarize its report.
+description: Run Fido's local GDD-to-GDScript design-fidelity (drift) scan and summarize its report.
 ---
 
 # Detect drift
 
-Run detector from project root. Keep scan local; never upload GDD or source files.
+Run **Fido** (design-fidelity / GDD drift detector) from the project root. Keep
+the scan local; never upload GDD or source files.
 This skill only scans. For GDD conventions or drafting, use the separate
 `setup-gdd` skill first.
 
