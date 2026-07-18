@@ -6,20 +6,48 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1]
 SITE = ROOT / "showcase" / "site"
 FIXTURE = ROOT / "showcase" / "godot-deckbuilder"
+SRC = SITE / "src"
+
+
+def _site_source() -> str:
+    parts: list[str] = []
+    for path in sorted(SRC.rglob("*")):
+        if path.suffix in {".ts", ".tsx", ".css"}:
+            parts.append(path.read_text())
+    return "\n".join(parts)
 
 
 def test_site_consumes_fixture_generated_artifact_without_synthetic_findings() -> None:
+    """Site drift.json must match the fixture report; UI may not invent findings."""
     site_report = json.loads((SITE / "public" / "drift.json").read_text())
     fixture_report = json.loads((FIXTURE / "drift.json").read_text())
 
     assert site_report == fixture_report
-    app = (SITE / "src" / "App.tsx").read_text()
-    assert 'fetch("./drift.json")' in app
-    assert "selectedFinding" in app
-    assert 'role="listbox"' in app
-    assert "report.candidates" in app
-    assert "game-fixture" in app
-    assert '<iframe className="game-embed" src="./game/index.html"' in app
+
+    shield = next(
+        finding
+        for finding in site_report["findings"]
+        if finding["status"] == "MISSING"
+        and finding.get("tracked_entity", {}).get("name") == "Shield"
+    )
+    assert shield["evidence"]["gdd_path"] == "GDD.md"
+    assert shield["code_entity"] is None
+
+    source = _site_source()
+    assert 'fetch("./drift.json")' in source
+    assert "selectedFinding" in source
+    assert 'role="listbox"' in source
+    assert "report.candidates" in source
+    assert "game-fixture" in source
+    assert "game-embed" in source
+    assert 'src="./game/index.html"' in source
+    assert "Show related finding" in source
+    assert 'RELATED_FINDING_NAME = "Shield"' in source
+    # Frozen Web export has no interaction bridge; manual handoff is the reveal path.
+    assert "window.postMessage" not in source
+    assert "contentWindow.postMessage" not in source
+    assert 'addEventListener("message"' not in source
+    assert "addEventListener('message'" not in source
     assert (SITE / "public" / "game" / "index.html").is_file()
     assert "Godot" in (SITE / "public" / "game" / "index.html").read_text()
     assert (SITE / "public" / "marketplace.json").is_file()
@@ -27,12 +55,21 @@ def test_site_consumes_fixture_generated_artifact_without_synthetic_findings() -
 
 
 def test_site_declares_accessible_states_and_responsive_reduced_motion_rules() -> None:
-    app = (SITE / "src" / "App.tsx").read_text()
+    source = _site_source()
     styles = (SITE / "src" / "styles.css").read_text()
 
-    assert "Report unavailable" in app
-    assert "Loading fixture report" in app
-    assert 'aria-live="polite"' in app
+    assert "Report unavailable" in source
+    assert "Loading fixture report" in source
+    assert 'aria-live="polite"' in source
+    assert "Dismiss" in source
+    assert "Play the showcase" in source
+    assert "Install the plugin" in source
+    assert source.index("Play the showcase") < source.index("Install the plugin")
+    assert "setup-gdd" in source
+    assert "detect-drift" in source
+    assert "copyConfirmationMessage" in source
     assert "@media (max-width: 767px)" in styles
     assert "prefers-reduced-motion" in styles
     assert "prefers-color-scheme" not in styles
+    assert "grid-template-areas" in styles
+    assert '"game"' in styles and '"findings"' in styles and '"evidence"' in styles
