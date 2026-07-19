@@ -34,6 +34,7 @@ npm --prefix showcase/site install   # when working on the showcase
 | `docs/` | Product/spec docs and agent ops notes under `docs/agents/` |
 | `release/` | Version manifest and release verification checklist |
 | `scripts/build_standalone_plugin_zip.py` | Builds the downloadable plugin ZIP |
+| `CHANGELOG.md` | Keep a Changelog release notes for collaborators and users |
 
 Product language (preferred terms and avoid-list) is in [`CONTEXT.md`](CONTEXT.md).
 Prefer those names in user-facing copy and new ADRs.
@@ -58,7 +59,9 @@ npm run showcase:build
 ```
 
 Full release-style verification (ZIP rebuild, optional plugin validator, etc.) is
-documented in [`release/README.md`](release/README.md).
+documented in [`release/README.md`](release/README.md). For release-facing
+changes, also update [`CHANGELOG.md`](CHANGELOG.md) under `[Unreleased]` (or
+the new version section when cutting a release).
 
 ## Standalone plugin ZIP
 

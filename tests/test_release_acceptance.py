@@ -35,7 +35,7 @@ def test_fixture_acceptance_covers_statuses_and_generated_artifacts(
     assert (project / "drift.json").is_file()
     assert (project / "drift_report.md").is_file()
     artifact = json.loads((project / "drift.json").read_text())
-    assert artifact["schema_version"] == "1.2"
+    assert artifact["schema_version"] == "1.3"
     assert all(finding["evidence"] for finding in artifact["findings"])
     assert "Priority findings" in (project / "drift_report.md").read_text()
 
@@ -175,6 +175,37 @@ def test_install_docs_and_readme_describe_current_install_flows() -> None:
         assert "start a new chat" in document.lower()
         assert "manual plugin installer" not in document
         assert "Upload the ZIP directly" not in document
+
+
+def test_docs_and_detect_skill_describe_mvp_polish_contract() -> None:
+    readme = (ROOT / "README.md").read_text()
+    install = (ROOT / "INSTALL.md").read_text()
+    detect = (
+        ROOT / "plugins" / "gdd-drift-detector" / "skills" / "detect-drift" / "SKILL.md"
+    ).read_text()
+
+    for document in (readme, install):
+        assert "OpenAI Codex" in document
+        assert "uv" in document
+        assert "drift.toml" in document
+        assert "scripts/detect-drift.py" in document
+        assert "python -m gdd_drift_detector" in document
+
+    assert "[entity: type]" in readme
+    assert "Add [entity: type] before this name to track it." in readme
+    assert "MISSING" in readme
+    assert "RENAMED?" in readme
+    assert "ORPHANED" in readme
+    assert "PLANNED" in readme
+    assert "not marked yet" in readme.lower()
+    assert "prefix-only" in install
+
+    assert "EMPTY_MARKER_NAME" in detect
+    assert "advisories" in detect
+    assert "make scan `PARTIAL`" in detect
+    assert "Add [entity: type] before this name to track it." in detect
+    assert "accepted_mappings" in detect
+    assert "Never mutate GDD, source, or `drift.toml`" in detect
 
 
 def test_plugin_manifest_and_skill_contract() -> None:
