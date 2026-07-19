@@ -58,6 +58,7 @@ Coverage: 3/5 (60%)
 
 ## Next actions
 
-- Implement or remove each missing tracked entity.
-- Confirm rename candidates through accepted_mappings in drift.toml.
-- Document, track, or remove each orphaned top-level symbol.
+- MISSING ownership: implement or unmark/remove each tracked entity.
+- RENAMED? ownership: add accepted_mappings or reject each candidate; do not count it as matched without accepted_mappings.
+- ORPHANED ownership: track, exclude in drift.toml, or remove each top-level symbol.
+- PLANNED ownership: keep entity outside the current coverage slice until it is ready.
