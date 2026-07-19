@@ -80,7 +80,8 @@ standalone package layout; most users do not need it.
 ### Mark your GDD
 
 Only concepts with an **entity marker** count toward coverage. Unmarked prose
-may appear as advisory candidates only.
+may appear as advisory candidates only — guidance is
+`Add [entity: type] before this name to track it.`
 
 Put design docs on a discovery path (or configure `drift.toml` later):
 

@@ -23,6 +23,7 @@ def test_setup_skill_declares_bring_and_grill_paths() -> None:
     assert "uv" in text
     assert "[entity: system] Combat Loop" in text
     assert "name follows `[entity: type]`" in text
+    assert "Add [entity: type] before this name to track it." in text
     assert "EMPTY_MARKER_NAME" in text
     assert "drift.toml" in text
     assert "MISSING" in text and "RENAMED?" in text

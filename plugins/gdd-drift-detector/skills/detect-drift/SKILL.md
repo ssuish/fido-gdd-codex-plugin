@@ -19,9 +19,11 @@ This skill only scans. For GDD conventions or drafting, use the separate
    `--project-root <root>`. The standalone plugin package embeds the detector
    beside the plugin; `GDD_DETECTOR_ROOT` is optional fallback only.
 4. Read JSON result from stdout. Report state, coverage, priority findings,
-   warnings, advisories, and next actions. Explain `EMPTY_MARKER_NAME` as a
-   prefix-only marker footgun: put `[entity: type]` before the name. Advisories
-   do not enter warnings, make scan `PARTIAL`, or qualify coverage.
+   warnings, advisories, candidates, and next actions. Explain
+   `EMPTY_MARKER_NAME` as a prefix-only marker footgun: put `[entity: type]`
+   before the name. Advisories do not enter warnings, make scan `PARTIAL`, or
+   qualify coverage. For unmarked `CANDIDATE` rows, say
+   `Add [entity: type] before this name to track it.`
 5. Point user to `<root>/drift_report.md` and `<root>/drift.json`.
 
 Pass repeated `--gdd` and `--source` options when user gives explicit inputs.

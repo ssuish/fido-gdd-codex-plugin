@@ -22,7 +22,8 @@ Offer exactly one of two paths after asking which applies.
    - `docs/gdd/**/*.md`
    - `docs/design/**/*.md`
 3. Explain authoritative tracking: only concepts marked with an **entity marker**
-   affect coverage. Unmarked prose may surface as advisory candidates only.
+   affect coverage. Unmarked prose may surface as advisory candidates only —
+   guidance is `Add [entity: type] before this name to track it.`
 4. Show the marker syntax and ask them to adopt it deliberately:
    - Tracked: `[entity: system] Combat Loop`
    - Planned (excluded from coverage): `[entity: system] [planned] Multiplayer`
@@ -67,7 +68,8 @@ Offer exactly one of two paths after asking which applies.
 
 - Never auto-write `GDD.md`, `drift.toml`, source files, or project scaffolding.
 - Never run the detector or invent scan results during setup.
-- Distinguish **tracked entities** (markers) from unmarked prose candidates.
+- Distinguish **tracked entities** (markers) from unmarked prose candidates
+  (`Add [entity: type] before this name to track it.`).
 - `drift.toml` is optional project config for accepted mappings and discovery
   overrides; describe it, do not create it unless the user explicitly asks you
   to draft text they will paste themselves.

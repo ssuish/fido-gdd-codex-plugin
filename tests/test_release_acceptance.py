@@ -192,6 +192,7 @@ def test_docs_and_detect_skill_describe_mvp_polish_contract() -> None:
         assert "python -m gdd_drift_detector" in document
 
     assert "[entity: type]" in readme
+    assert "Add [entity: type] before this name to track it." in readme
     assert "MISSING" in readme
     assert "RENAMED?" in readme
     assert "ORPHANED" in readme
@@ -202,6 +203,7 @@ def test_docs_and_detect_skill_describe_mvp_polish_contract() -> None:
     assert "EMPTY_MARKER_NAME" in detect
     assert "advisories" in detect
     assert "make scan `PARTIAL`" in detect
+    assert "Add [entity: type] before this name to track it." in detect
     assert "accepted_mappings" in detect
     assert "Never mutate GDD, source, or `drift.toml`" in detect
 
