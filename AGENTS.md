@@ -26,6 +26,8 @@ Codex plugin host adapter and a linked showcase fixture. Product name is
   `build_standalone_plugin_zip.py`).
 - Root `CONTEXT.md` — product ubiquitous language; prefer it over inventing
   synonyms.
+- Root `CHANGELOG.md` — user-facing release notes (Keep a Changelog); update on
+  every release change (see below).
 - Keep generated caches, secrets, and local dependency directories out of version
   control unless an artifact is intentionally committed (Showcase Web export,
   fixture reports, downloadable ZIP).
@@ -53,10 +55,33 @@ python3 scripts/build_standalone_plugin_zip.py
 
 Release checklist: [`release/README.md`](release/README.md). Human contributor
 onboarding: [`CONTRIBUTING.md`](CONTRIBUTING.md). End-user install: root
-[`README.md`](README.md).
+[`README.md`](README.md). Changelog: root [`CHANGELOG.md`](CHANGELOG.md).
 
 Scans are read-only for GDD, sources, and `drift.toml`; they write only
 `drift.json` and `drift_report.md` under the target project root.
+
+## Changelog (required for release changes)
+
+When a change is part of a **release** (or prepares one), update
+[`CHANGELOG.md`](CHANGELOG.md) in the same PR/commit set:
+
+- Bumps in `release/manifest.json` (product, detector, plugin, showcase, or
+  `artifact_schema`)
+- User-visible detector/plugin behavior, report schema, skills, INSTALL/README
+  install flows, or the downloadable standalone ZIP
+- Fixture or showcase artifacts that ship with a versioned release
+
+How to edit:
+
+1. Add bullets under `## [Unreleased]` using Added / Changed / Fixed /
+   Deprecated / Removed / Security as appropriate.
+2. Prefer product language from [`CONTEXT.md`](CONTEXT.md); keep entries short
+   and collaborator-readable (what changed and why it matters).
+3. When cutting a release, move Unreleased bullets into a new
+   `## [X.Y.Z] - YYYY-MM-DD` section matching `release/manifest.json` `version`,
+   and refresh the compare/tag links at the bottom of the file.
+4. Do **not** changelog pure internal refactors, test-only churn, or formatting
+   with no user/release impact.
 
 ## Coding Style & Naming Conventions
 
@@ -87,7 +112,8 @@ Pull requests should explain the change and verification performed, link the
 relevant issue when one exists, and include screenshots for visible showcase UI
 changes. Call out packaging, release manifest, security, or deployment
 implications explicitly. Rebuild and commit the standalone ZIP when plugin or
-detector packaging changes affect the downloadable artifact.
+detector packaging changes affect the downloadable artifact. For release-facing
+work, update [`CHANGELOG.md`](CHANGELOG.md) as required above.
 
 ## Agent skills
 

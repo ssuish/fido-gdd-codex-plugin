@@ -31,3 +31,9 @@ plugin skills (`setup-gdd`, `detect-drift`), launcher, detector `src/`,
 `./plugins/gdd-drift-detector` so both Codex CLI and ChatGPT desktop resolve the
 same extracted plugin. Rebuild it with
 `python3 scripts/build_standalone_plugin_zip.py` before release checks.
+
+Before tagging or publishing a version, update root [`CHANGELOG.md`](../CHANGELOG.md):
+move `[Unreleased]` notes into a dated `## [X.Y.Z]` section that matches
+`release/manifest.json` `version`, and keep compare/tag links current. Agents
+and collaborators must treat changelog edits as part of every release change
+(see root [`AGENTS.md`](../AGENTS.md)).
