@@ -247,8 +247,10 @@ npm run showcase:dev
 ```
 
 Artifacts live under `showcase/site/public/` (`drift.json`, `game/`, downloads).
+On the live site, `game/` is served from R2 via Worker `fido` (wasm exceeds the
+Workers static-asset size limit); local dev still uses `public/game/` directly.
 The fixture project is `showcase/godot-deckbuilder/`. Operator notes for
-Cloudflare Workers deploy live in [`release/README.md`](release/README.md).
+Cloudflare Workers + R2 deploy live in [`release/README.md`](release/README.md).
 
 ---
 

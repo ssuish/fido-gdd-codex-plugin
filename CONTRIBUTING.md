@@ -31,9 +31,10 @@ npm --prefix showcase/site install   # when working on the showcase
 | `src/gdd_drift_detector/` | Detector engine: discovery, GDD/GDScript parsing, matching, reports |
 | `plugins/gdd-drift-detector/` | Codex plugin: `setup-gdd`, `detect-drift`, launcher script |
 | `showcase/godot-deckbuilder/` | Frozen Godot 4.6.3 fixture (GDD + scripts + intentional drift) |
-| `showcase/site/` | Vite/React showcase (loads `public/drift.json` and Web export) |
+| `showcase/site/` | Vite/React showcase (`public/drift.json`, Web export, downloads ZIP). Live: Worker `fido` + R2 for `/game/*` |
 | `tests/` | Pytest suite (detector, plugin package, release acceptance, showcase) |
-| `release/` | Version manifest and release verification checklist |
+| `release/` | Version manifest, release checklist, Showcase Workers/R2 deploy ops |
+| `.github/workflows/showcase-pages.yml` | Showcase lint/test/build + Workers deploy / PR preview |
 | `scripts/build_standalone_plugin_zip.py` | Builds the downloadable plugin ZIP |
 | `CHANGELOG.md` | Keep a Changelog release notes for collaborators and users |
 | `docs/` | Maintainers' **local-only** notes (gitignored; not in the published tree) |
@@ -86,6 +87,10 @@ updated ZIP when the downloadable artifact should change with your PR.
   the project already tracks a specific generated artifact by design
   (for example the Showcase Web export under `showcase/site/public/game/`).
 - Explain what you changed, how you verified it, and any release/docs impact.
+  Call out Showcase deploy changes (Worker, R2 `fido-showcase-game`,
+  `_headers` / `worker.ts` isolation headers) explicitly; operator detail is in
+  [`release/README.md`](release/README.md). Prefer product language from
+  [`CONTEXT.md`](CONTEXT.md) (**Showcase live deploy**, **Showcase Web export**).
 - Link the related GitHub issue when one exists.
 
 ## Issues and triage labels

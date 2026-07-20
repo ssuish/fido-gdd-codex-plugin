@@ -23,8 +23,8 @@ The primary user-facing integration that runs inside a Codex session to keep AI 
 _Avoid_: Godot editor plugin, Claude Code plugin, MCP server (unless referring to a future host adapter)
 
 **Showcase website**:
-A supporting product experience that demonstrates the problem, workflow, and value of the Codex plugin.
-_Avoid_: the product itself, marketing site (when referring to the interactive demo)
+A supporting product experience that demonstrates the problem, workflow, and value of the Codex plugin. Live production is a Cloudflare Worker (`fido`) serving the Vite static shell; the playable Proof iframe loads the Showcase Web export from R2 under the same origin (`/game/*`).
+_Avoid_: the product itself, marketing site (when referring to the interactive demo), Cloudflare Pages (superseded host for this product)
 
 **Plugin download**:
 The website-provided standalone package and instructions that let a user install the local Codex plugin without cloning the detector monorepo.
@@ -47,8 +47,12 @@ A disposable Windows working copy of the showcase fixture used only when the God
 _Avoid_: dual long-lived trees, Windows as fixture source of truth
 
 **Showcase Web export**:
-The committed Godot Web build served by the showcase website at `showcase/site/public/game/`, generated from the pinned showcase game.
-_Avoid_: fixture `web/` directory, dual export copies, synthetic HTML game shell
+The committed Godot Web build at `showcase/site/public/game/` (source of truth in git, used by local `npm run showcase:dev`). On the live Showcase website it is synced to R2 bucket `fido-showcase-game` and served by Worker `fido` at `/game/*` because the wasm exceeds the Workers static-asset 25 MiB file limit; isolation headers (`COOP` / `COEP` / `CORP`) apply on that path via the Worker.
+_Avoid_: fixture `web/` directory, dual export copies, synthetic HTML game shell, bundling the wasm into Workers static assets
+
+**Showcase live deploy**:
+The GitHub Actions + Wrangler path that builds the Showcase website, syncs `game/` to R2 on `main`, strips `game/` from Worker assets, deploys Worker `fido`, and uploads PR preview versions that share the production R2 game bucket.
+_Avoid_: Cloudflare Pages deploy, Cloudflare Git integration as the primary path, re-uploading the frozen wasm on every PR
 
 **Showcase slice**:
 The smallest playable deck-builder loop that makes the drift problem legible to a visitor.
