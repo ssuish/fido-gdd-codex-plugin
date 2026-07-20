@@ -191,7 +191,7 @@ def _finding_row(finding: Finding) -> str:
     excerpt = "(no design intent)"
     if finding.evidence is not None and finding.evidence.gdd_excerpt:
         excerpt = _bound_excerpt(finding.evidence.gdd_excerpt)
-    table_excerpt = excerpt.replace("|", "\\|")
+    table_excerpt = excerpt.replace("|", "\\|").replace("\n", " ")
     return f"| {finding.status} | {name} | {table_excerpt} |"
 
 
