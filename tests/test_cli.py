@@ -145,6 +145,115 @@ def test_context_print_is_deterministic(
     assert first.out == second.out
 
 
+def test_context_default_creates_agents_file_with_context_block(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_showcase(tmp_path)
+
+    code = main(["context", "--project-root", str(root)])
+
+    captured = capsys.readouterr()
+    agents = root / "AGENTS.md"
+    assert code == 0
+    assert captured.out == ""
+    assert captured.err == ""
+    assert agents.read_text().startswith("<!-- fido:context:start -->\n")
+    assert agents.read_text().rstrip().endswith("<!-- fido:context:end -->")
+    created = agents.read_text()
+
+    rerun_code = main(["context", "--project-root", str(root)])
+    capsys.readouterr()
+
+    assert rerun_code == 0
+    assert agents.read_text() == created
+
+
+def test_context_appends_or_replaces_only_its_delimited_agents_block(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_showcase(tmp_path)
+    agents = root / "AGENTS.md"
+    agents.write_text("# Local instructions\n")
+
+    append_code = main(["context", "--project-root", str(root)])
+    capsys.readouterr()
+    appended = agents.read_text()
+    assert append_code == 0
+    assert appended.startswith("# Local instructions\n\n<!-- fido:context:start -->")
+
+    agents.write_text(
+        "# Local instructions\n<!-- fido:context:start -->\nold block\n"
+        "<!-- fido:context:end -->\nKeep this note.\n"
+    )
+    replace_code = main(["context", "--project-root", str(root)])
+    capsys.readouterr()
+    replaced = agents.read_text()
+    rerun_code = main(["context", "--project-root", str(root)])
+    capsys.readouterr()
+
+    assert replace_code == 0
+    assert rerun_code == 0
+    assert "# Local instructions\n" in replaced
+    assert "Keep this note.\n" in replaced
+    assert "old block" not in replaced
+    assert replaced.count("<!-- fido:context:start -->") == 1
+    assert agents.read_text() == replaced
+
+
+def test_context_replace_preserves_crlf_non_fido_content(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_showcase(tmp_path)
+    agents = root / "AGENTS.md"
+    prefix = b"# Local instructions\r\n"
+    suffix = b"\r\nKeep this note.\r\n"
+    agents.write_bytes(
+        prefix
+        + b"<!-- fido:context:start -->\r\nold block\r\n"
+        + b"<!-- fido:context:end -->"
+        + suffix
+    )
+
+    code = main(["context", "--project-root", str(root)])
+    capsys.readouterr()
+    updated = agents.read_bytes()
+
+    assert code == 0
+    assert updated.startswith(prefix)
+    assert updated.endswith(suffix)
+    assert b"old block" not in updated
+    assert b"\n" not in updated.replace(b"\r\n", b"")
+
+
+def test_context_update_only_noops_without_block_and_print_stays_stdout_only(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_showcase(tmp_path)
+    agents = root / "AGENTS.md"
+    missing_file_code = main(["context", "--update-only", "--project-root", str(root)])
+    missing_file = capsys.readouterr()
+
+    assert missing_file_code == 0
+    assert missing_file.out == ""
+    assert not agents.exists()
+
+    agents.write_text("# Local instructions\n")
+
+    no_op_code = main(["context", "--update-only", "--project-root", str(root)])
+    no_op = capsys.readouterr()
+    print_code = main(
+        ["context", "--print", "--update-only", "--project-root", str(root)]
+    )
+    printed = capsys.readouterr()
+
+    assert no_op_code == 0
+    assert no_op.out == ""
+    assert agents.read_text() == "# Local instructions\n"
+    assert print_code == 0
+    assert printed.out.startswith("<!-- fido:context:start -->")
+    assert agents.read_text() == "# Local instructions\n"
+
+
 def test_context_verbose_adds_details_without_changing_default(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -251,15 +360,6 @@ def test_context_empty_gdd_uses_readme_or_suggests_setup_gdd(
     assert "Moonlit Deckbuilder" in fallback.out
     assert cold_start_code == 2
     assert "setup-gdd" in cold_start.err
-
-
-def test_context_requires_print_flag(capsys: pytest.CaptureFixture[str]) -> None:
-    with pytest.raises(SystemExit) as exited:
-        main(["context"])
-
-    captured = capsys.readouterr()
-    assert exited.value.code == 2
-    assert "--print" in captured.err
 
 
 def test_context_print_leaves_legacy_scan_intact(

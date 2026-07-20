@@ -7,13 +7,20 @@ import sys
 from pathlib import Path
 
 from ..context_block import render_context_block
+from ..context_file import write_context_block
 from ..discovery import discover_context_gdd_paths, validate_project
 from ..models import ScanConfig, ScanFailure
 from ..scanner import scan
 
 
-def run_context(project_root: Path, *, verbose: bool = False) -> int:
-    """Scan once and print the context block to stdout."""
+def run_context(
+    project_root: Path,
+    *,
+    print_block: bool = False,
+    update_only: bool = False,
+    verbose: bool = False,
+) -> int:
+    """Scan once and print or update the game design context block."""
     try:
         root = project_root.resolve()
         validate_project(root)
@@ -25,7 +32,11 @@ def run_context(project_root: Path, *, verbose: bool = False) -> int:
     except ScanFailure as error:
         print(json.dumps(error.to_dict()), file=sys.stderr)
         return 2
-    print(render_context_block(result, verbose=verbose), end="")
+    block = render_context_block(result, verbose=verbose)
+    if print_block:
+        print(block, end="")
+        return 0
+    write_context_block(project_root / "AGENTS.md", block, update_only=update_only)
     return 0
 
 
