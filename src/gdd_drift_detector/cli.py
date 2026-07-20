@@ -47,6 +47,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print the context block to stdout (required in this release slice)",
     )
+    context_parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Include capped implementation details and a suggested next prompt",
+    )
 
     return parser
 
@@ -58,7 +63,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "scan":
         return run_scan(args.project_root, gdd=args.gdd, source=args.source)
     if args.command == "context":
-        return run_context(args.project_root)
+        return run_context(args.project_root, verbose=args.verbose)
     raise AssertionError(f"unhandled command: {args.command}")
 
 

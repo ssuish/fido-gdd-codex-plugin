@@ -213,3 +213,61 @@ def test_render_context_block_marks_partial_scan_coverage() -> None:
     )
 
     assert "**Coverage:** 0/1 tracked entities implemented (0%); partial scan" in block
+
+
+def test_render_context_block_verbose_adds_capped_table_legend_and_prompt() -> None:
+    findings = tuple(
+        Finding(
+            "MISSING" if index == 1 else "MATCHED",
+            _entity(f"Entity{index}", line=index),
+            None,
+            _evidence(
+                f"[entity: mechanic] Entity{index} — design intent {index}.",
+                gdd_line=index,
+            ),
+        )
+        for index in range(1, 13)
+    )
+    result = _result(
+        findings,
+        candidates=(CandidateEntity("Test Game", "GDD.md", 1),),
+        tracked=tuple(
+            finding.tracked_entity for finding in findings if finding.tracked_entity
+        ),
+        total=12,
+    )
+
+    minimal = render_context_block(result)
+    verbose = render_context_block(result, verbose=True)
+
+    assert "### Implementation state" not in minimal
+    assert "### Implementation state" in verbose
+    assert "| Status | GDD entity | Design intent |" in verbose
+    assert (
+        "| MISSING | Entity1 | [entity: mechanic] Entity1 — design intent 1. |"
+        in verbose
+    )
+    assert (
+        "| MATCHED | Entity10 | [entity: mechanic] Entity10 — design intent 10. |"
+        in verbose
+    )
+    table = verbose.split("### Implementation state\n\n")[1].split(
+        "\n\n### Status legend"
+    )[0]
+    assert "Entity11" not in table
+    assert "Showing 10 of 12 findings." in verbose
+    assert "### Status legend" in verbose
+    assert "- `MISSING`: tracked in the GDD, no implementation found." in verbose
+    assert "### Suggested next prompt" in verbose
+    assert (
+        "Implement **Entity1**: [entity: mechanic] Entity1 — design intent 1."
+        in verbose
+    )
+
+
+def test_verbose_prompt_references_gdd_when_intent_excerpt_is_missing() -> None:
+    finding = Finding("MISSING", _entity("Shield", line=6), None, _evidence(None))
+
+    block = render_context_block(_result((finding,)), verbose=True)
+
+    assert "Implement **Shield**: the GDD entry at `GDD.md:6`" in block
