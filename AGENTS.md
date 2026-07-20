@@ -19,8 +19,9 @@ Codex plugin host adapter and a linked showcase fixture. Product name is
 - `showcase/site/` — Vite/React showcase; public assets include `drift.json`,
   Web export under `public/game/`, and the standalone ZIP under
   `public/downloads/`.
-- `docs/` — product/spec docs; `docs/adr/` for decisions; `docs/agents/` for
-  agent ops.
+- `docs/` — **local-only** (gitignored): product/spec notes, `docs/adr/`
+  decisions, and `docs/agents/` agent ops. Not published on GitHub; collaborators
+  use root `CONTRIBUTING.md` / `CONTEXT.md` instead.
 - `release/` — version pins and release verification.
 - `scripts/` — packaging helpers (for example
   `build_standalone_plugin_zip.py`).
@@ -117,16 +118,22 @@ work, update [`CHANGELOG.md`](CHANGELOG.md) as required above.
 
 ## Agent skills
 
+Local agent-ops notes under `docs/agents/` are **local-only** (gitignored). Create
+or refresh the stubs there when working in a checkout that has `docs/`. Public
+collaborator-facing triage vocabulary lives in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ### Issue tracker
 
-Issues live in this repo's GitHub Issues (via `gh`). See
+Issues live in this repo's GitHub Issues (via `gh`). Local detail:
 `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
 Default triage vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`,
-`ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+`ready-for-human`, `wontfix`. Local detail: `docs/agents/triage-labels.md`.
+Also listed in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ### Domain docs
 
-Single-context — root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
+Single-context — root `CONTEXT.md` + local `docs/adr/`. Local pointer:
+`docs/agents/domain.md`.

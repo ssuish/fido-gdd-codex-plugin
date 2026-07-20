@@ -19,7 +19,7 @@ _Avoid_: GDD Drift Detector (legacy working title), Aurora, FIDO Alliance /
 passkey sense of “FIDO”
 
 **Codex plugin**:
-The primary user-facing integration that runs inside a Codex session to align a project's GDD with its codebase via local skills and the shared detector engine.
+The primary user-facing integration that runs inside a Codex session to keep AI agents aligned to game design via `fido context`, local skills, and the shared detector engine.
 _Avoid_: Godot editor plugin, Claude Code plugin, MCP server (unless referring to a future host adapter)
 
 **Showcase website**:
@@ -123,8 +123,20 @@ The local execution environment used by the Codex plugin to run the detector eng
 _Avoid_: cloud runtime (for the MVP)
 
 **Plugin command**:
-The user-invoked `/detect-drift` Codex workflow that starts a local drift scan and returns its summary and artifacts.
-_Avoid_: MCP tool (unless describing a future transport adapter), setup skill (which does not run a drift scan)
+The user-invoked `/detect-drift` Codex workflow that starts a local drift scan and returns its summary and artifacts. Explicit audit path; not the primary product entry (see **fido context**).
+_Avoid_: MCP tool (unless describing a future transport adapter), setup skill (which does not run a drift scan), primary workflow (for detect-drift)
+
+**fido context**:
+The product command that generates or refreshes the **game design context block** in project agent memory files (`AGENTS.md` by default), using GDD input and drift scan state. Primary painkiller workflow for Bibo.
+_Avoid_: detect-drift (audit-only), drift report (human artifact, not session injection)
+
+**Game design context block**:
+The delimited `## Game Design Context` section Fido writes into `AGENTS.md` (or host-specific memory files), containing design intent, top missing mechanics, scope boundaries, and coverage summary for AI coding sessions.
+_Avoid_: CLAUDE.md-only (cross-tool default is AGENTS.md), full drift report, LLM-generated project overview
+
+**Context skill**:
+The Codex **`fido-context`** skill that invokes `fido context` and chains to **setup skill** on cold start. Hero plugin entry per ADR 0041.
+_Avoid_: detect-drift skill (audit secondary), silent GDD authoring
 
 **Setup skill**:
 The Codex skill that prepares a GDD source set by asking the user to provide an existing GDD or by grilling them about design until a draft is ready in-session.

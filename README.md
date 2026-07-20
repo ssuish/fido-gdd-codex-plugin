@@ -257,12 +257,13 @@ High-level layout:
 | `plugins/gdd-drift-detector/` | Codex host adapter for Fido (skills + launcher) |
 | `showcase/` | Demo site + Godot fixture |
 | `tests/` | Automated tests |
-| `docs/adr/` | Architecture decision records |
 | `release/` | Version pins and release verification |
 
 Development setup, checks, ZIP rebuild, and PR expectations are in
 [**CONTRIBUTING.md**](CONTRIBUTING.md). Product vocabulary lives in
-[`CONTEXT.md`](CONTEXT.md).
+[`CONTEXT.md`](CONTEXT.md). Please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md). Security reports:
+[SECURITY.md](SECURITY.md).
 
 Rebuild the downloadable standalone plugin package after packaging changes:
 

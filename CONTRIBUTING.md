@@ -8,13 +8,16 @@ Prefer **Fido** in user-facing copy. Keep the technical id `gdd-drift-detector`
 for package paths, plugin `name`, skill prefixes, and the download ZIP unless a
 change deliberately renames those identifiers.
 
+Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). To report a
+vulnerability, see [SECURITY.md](SECURITY.md) (do not file a public issue).
+
 ## Development setup
 
 Requirements:
 
 - Python **3.10+**
 - [`uv`](https://docs.astral.sh/uv/)
-- Node.js + npm (for the showcase site)
+- Node.js + npm (for the showcase site; see [`.node-version`](.node-version))
 
 ```sh
 uv sync
@@ -30,14 +33,13 @@ npm --prefix showcase/site install   # when working on the showcase
 | `showcase/godot-deckbuilder/` | Frozen Godot 4.6.3 fixture (GDD + scripts + intentional drift) |
 | `showcase/site/` | Vite/React showcase (loads `public/drift.json` and Web export) |
 | `tests/` | Pytest suite (detector, plugin package, release acceptance, showcase) |
-| `docs/adr/` | Architecture decision records |
-| `docs/` | Product/spec docs and agent ops notes under `docs/agents/` |
 | `release/` | Version manifest and release verification checklist |
 | `scripts/build_standalone_plugin_zip.py` | Builds the downloadable plugin ZIP |
 | `CHANGELOG.md` | Keep a Changelog release notes for collaborators and users |
+| `docs/` | Maintainers' **local-only** notes (gitignored; not in the published tree) |
 
 Product language (preferred terms and avoid-list) is in [`CONTEXT.md`](CONTEXT.md).
-Prefer those names in user-facing copy and new ADRs.
+Prefer those names in user-facing copy.
 
 ## Checks before opening a PR
 
@@ -58,10 +60,11 @@ npm run showcase:test
 npm run showcase:build
 ```
 
-Full release-style verification (ZIP rebuild, optional plugin validator, etc.) is
-documented in [`release/README.md`](release/README.md). For release-facing
-changes, also update [`CHANGELOG.md`](CHANGELOG.md) under `[Unreleased]` (or
-the new version section when cutting a release).
+CI runs the same Python and showcase checks on pull requests. Full release-style
+verification (ZIP rebuild, optional plugin validator, etc.) is documented in
+[`release/README.md`](release/README.md). For release-facing changes, also update
+[`CHANGELOG.md`](CHANGELOG.md) under `[Unreleased]` (or the new version section
+when cutting a release).
 
 ## Standalone plugin ZIP
 
@@ -85,9 +88,18 @@ updated ZIP when the downloadable artifact should change with your PR.
 - Explain what you changed, how you verified it, and any release/docs impact.
 - Link the related GitHub issue when one exists.
 
-Issues are tracked in GitHub Issues. Label vocabulary used by maintainers and
-agents is described in [`docs/agents/triage-labels.md`](docs/agents/triage-labels.md);
-you do not need to apply agent labels yourself when filing a normal contribution.
+## Issues and triage labels
+
+Issues are tracked in GitHub Issues. You do not need to apply maintainer labels
+when filing a normal contribution. Maintainers (and agents) use this vocabulary:
+
+| Label | Meaning |
+|-------|---------|
+| `needs-triage` | New or unreviewed; not yet routed |
+| `needs-info` | Waiting on reporter or author clarification |
+| `ready-for-agent` | Scoped enough for an automated agent to pick up |
+| `ready-for-human` | Needs a human maintainer decision or review |
+| `wontfix` | Declined; no further work planned |
 
 ## License
 
