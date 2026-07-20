@@ -17,11 +17,14 @@ Codex plugin host adapter and a linked showcase fixture. Product name is
 - `showcase/godot-deckbuilder/` — frozen Godot 4.6.3 fixture (not a living game
   product).
 - `showcase/site/` — Vite/React showcase; public assets include `drift.json`,
-  Web export under `public/game/`, and the standalone ZIP under
-  `public/downloads/`.
-- `docs/` — product/spec docs; `docs/adr/` for decisions; `docs/agents/` for
-  agent ops.
-- `release/` — version pins and release verification.
+  Web export under `public/game/` (git source of truth), and the standalone ZIP
+  under `public/downloads/`. Live host: Worker `fido` + R2 `fido-showcase-game`
+  for `/game/*` (see `release/README.md`, `wrangler.jsonc`, `worker.ts`).
+- `docs/` — **local-only** (gitignored): product/spec notes, `docs/adr/`
+  decisions, and `docs/agents/` agent ops. Not published on GitHub; collaborators
+  use root `CONTRIBUTING.md` / `CONTEXT.md` instead.
+- `release/` — version pins and release verification (includes Showcase Workers
+  deploy operator notes).
 - `scripts/` — packaging helpers (for example
   `build_standalone_plugin_zip.py`).
 - Root `CONTEXT.md` — product ubiquitous language; prefer it over inventing
@@ -50,11 +53,16 @@ npm run showcase:build
 npm run showcase:lint
 npm run showcase:test
 
+# Live Showcase (needs Cloudflare token with Workers Scripts + R2 Edit):
+# cd showcase/site && npm run deploy
+# (build → sync dist/game to R2 → strip game from assets → wrangler deploy)
+
 python3 scripts/build_standalone_plugin_zip.py
 ```
 
-Release checklist: [`release/README.md`](release/README.md). Human contributor
-onboarding: [`CONTRIBUTING.md`](CONTRIBUTING.md). End-user install: root
+Release checklist and Showcase Workers/R2 ops:
+[`release/README.md`](release/README.md). Human contributor onboarding:
+[`CONTRIBUTING.md`](CONTRIBUTING.md). End-user install: root
 [`README.md`](README.md). Changelog: root [`CHANGELOG.md`](CHANGELOG.md).
 
 Scans are read-only for GDD, sources, and `drift.toml`; they write only
@@ -117,16 +125,23 @@ work, update [`CHANGELOG.md`](CHANGELOG.md) as required above.
 
 ## Agent skills
 
+Local agent-ops notes under `docs/agents/` are **local-only** (gitignored). Create
+or refresh the stubs there when working in a checkout that has `docs/`. Public
+collaborator-facing triage vocabulary lives in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ### Issue tracker
 
-Issues live in this repo's GitHub Issues (via `gh`). See
+Issues live in this repo's GitHub Issues (via `gh`). Local detail:
 `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
 Default triage vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`,
-`ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+`ready-for-human`, `wontfix`. Local detail: `docs/agents/triage-labels.md`.
+Also listed in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ### Domain docs
 
-Single-context — root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
+Single-context — root `CONTEXT.md` + local `docs/adr/`. Local pointer:
+`docs/agents/domain.md`. Showcase live deploy (Workers + R2):
+`docs/agents/showcase-deploy.md` and public [`release/README.md`](release/README.md).

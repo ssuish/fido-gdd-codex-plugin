@@ -11,9 +11,28 @@ aligned with `release/manifest.json`.
 
 ### Added
 
+- Live Showcase website deploy (GitHub Actions + Wrangler) with production
+  isolation headers (`COOP` / `COEP` / `CORP`) for the Godot Web export;
+  intended production URL `https://fido.kofeejan.com`.
+
 ### Changed
 
+- Showcase live deploy moved from Cloudflare Pages to a Workers + static
+  assets Worker (`fido`); PR previews use `wrangler versions upload`.
+- Showcase Godot Web export (`game/`) is synced to R2 bucket
+  `fido-showcase-game` and served by the Worker at `/game/*`, because the wasm
+  exceeds the 25 MiB Workers static-asset file limit.
+- Showcase CI drops one-time Worker bootstrap; R2 `game/` sync runs on `main`
+  only (PR previews share the production game bucket).
+- Detector engine internals split into named modules (`discovery`, `gdd_parse`,
+  `gdscript_parse`, `matching`, `artifacts`, `narrative`) behind the same
+  `scan()` boundary; Graph artifact and Drift report share one next-actions
+  narrative.
+
 ### Fixed
+
+- Launcher forwards `--gdd` / `--source` (and strips a redundant `--json`) to the
+  detector CLI so skill and peer examples match runtime behavior.
 
 ## [0.1.0] - 2026-07-19
 

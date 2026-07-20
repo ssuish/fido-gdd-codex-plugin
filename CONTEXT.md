@@ -19,12 +19,12 @@ _Avoid_: GDD Drift Detector (legacy working title), Aurora, FIDO Alliance /
 passkey sense of “FIDO”
 
 **Codex plugin**:
-The primary user-facing integration that runs inside a Codex session to align a project's GDD with its codebase via local skills and the shared detector engine.
+The primary user-facing integration that runs inside a Codex session to keep AI agents aligned to game design via `fido context`, local skills, and the shared detector engine.
 _Avoid_: Godot editor plugin, Claude Code plugin, MCP server (unless referring to a future host adapter)
 
 **Showcase website**:
-A supporting product experience that demonstrates the problem, workflow, and value of the Codex plugin.
-_Avoid_: the product itself, marketing site (when referring to the interactive demo)
+A supporting product experience that demonstrates the problem, workflow, and value of the Codex plugin. Live production is a Cloudflare Worker (`fido`) serving the Vite static shell; the playable Proof iframe loads the Showcase Web export from R2 under the same origin (`/game/*`).
+_Avoid_: the product itself, marketing site (when referring to the interactive demo), Cloudflare Pages (superseded host for this product)
 
 **Plugin download**:
 The website-provided standalone package and instructions that let a user install the local Codex plugin without cloning the detector monorepo.
@@ -47,8 +47,12 @@ A disposable Windows working copy of the showcase fixture used only when the God
 _Avoid_: dual long-lived trees, Windows as fixture source of truth
 
 **Showcase Web export**:
-The committed Godot Web build served by the showcase website at `showcase/site/public/game/`, generated from the pinned showcase game.
-_Avoid_: fixture `web/` directory, dual export copies, synthetic HTML game shell
+The committed Godot Web build at `showcase/site/public/game/` (source of truth in git, used by local `npm run showcase:dev`). On the live Showcase website it is synced to R2 bucket `fido-showcase-game` and served by Worker `fido` at `/game/*` because the wasm exceeds the Workers static-asset 25 MiB file limit; isolation headers (`COOP` / `COEP` / `CORP`) apply on that path via the Worker.
+_Avoid_: fixture `web/` directory, dual export copies, synthetic HTML game shell, bundling the wasm into Workers static assets
+
+**Showcase live deploy**:
+The GitHub Actions + Wrangler path that builds the Showcase website, syncs `game/` to R2 on `main`, strips `game/` from Worker assets, deploys Worker `fido`, and uploads PR preview versions that share the production R2 game bucket.
+_Avoid_: Cloudflare Pages deploy, Cloudflare Git integration as the primary path, re-uploading the frozen wasm on every PR
 
 **Showcase slice**:
 The smallest playable deck-builder loop that makes the drift problem legible to a visitor.
@@ -123,8 +127,20 @@ The local execution environment used by the Codex plugin to run the detector eng
 _Avoid_: cloud runtime (for the MVP)
 
 **Plugin command**:
-The user-invoked `/detect-drift` Codex workflow that starts a local drift scan and returns its summary and artifacts.
-_Avoid_: MCP tool (unless describing a future transport adapter), setup skill (which does not run a drift scan)
+The user-invoked `/detect-drift` Codex workflow that starts a local drift scan and returns its summary and artifacts. Explicit audit path; not the primary product entry (see **fido context**).
+_Avoid_: MCP tool (unless describing a future transport adapter), setup skill (which does not run a drift scan), primary workflow (for detect-drift)
+
+**fido context**:
+The product command that generates or refreshes the **game design context block** in project agent memory files (`AGENTS.md` by default), using GDD input and drift scan state. Primary painkiller workflow for Bibo.
+_Avoid_: detect-drift (audit-only), drift report (human artifact, not session injection)
+
+**Game design context block**:
+The delimited `## Game Design Context` section Fido writes into `AGENTS.md` (or host-specific memory files), containing design intent, top missing mechanics, scope boundaries, and coverage summary for AI coding sessions.
+_Avoid_: CLAUDE.md-only (cross-tool default is AGENTS.md), full drift report, LLM-generated project overview
+
+**Context skill**:
+The Codex **`fido-context`** skill that invokes `fido context` and chains to **setup skill** on cold start. Hero plugin entry per ADR 0041.
+_Avoid_: detect-drift skill (audit secondary), silent GDD authoring
 
 **Setup skill**:
 The Codex skill that prepares a GDD source set by asking the user to provide an existing GDD or by grilling them about design until a draft is ready in-session.

@@ -37,3 +37,59 @@ move `[Unreleased]` notes into a dated `## [X.Y.Z]` section that matches
 `release/manifest.json` `version`, and keep compare/tag links current. Agents
 and collaborators must treat changelog edits as part of every release change
 (see root [`AGENTS.md`](../AGENTS.md)).
+
+## Showcase Workers (live site)
+
+The Showcase website deploys as a Cloudflare Worker with static assets via
+[`.github/workflows/showcase-pages.yml`](../.github/workflows/showcase-pages.yml)
+(`wrangler deploy` / `wrangler versions upload`). Config lives in
+`showcase/site/wrangler.jsonc` (Worker name `fido`). The Godot Web export under
+`game/` is too large for Workers static assets (25 MiB/file; wasm is ~35 MiB),
+so CI syncs it to R2 bucket **`fido-showcase-game`** and the Worker serves
+`/game/*` from that bucket (same-origin, with isolation headers). Production
+custom domain intent: `https://fido.kofeejan.com`.
+
+### Human prerequisites
+
+1. Create an API token scoped to **Account → Workers Scripts → Edit** and
+   **Account → Workers R2 Storage → Edit** (not a Global API Key; a Pages-only
+   token will fail). Add GitHub Actions secrets:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+2. Worker `fido` and R2 bucket `fido-showcase-game` must already exist (first
+   bootstrap is local `npm run deploy` or a prior `main` deploy). No manual
+   Pages project create step. Local deploy:
+
+   ```sh
+   cd showcase/site
+   npm ci && npm run deploy
+   ```
+
+   (`deploy` builds, syncs `dist/game` to R2, strips it from assets, then
+   `wrangler deploy`.)
+3. Attach custom domain `fido.kofeejan.com` on the **Worker** in the Cloudflare
+   dashboard and configure DNS/SSL. CI cannot finish domain attachment alone.
+4. Optional: protect the GitHub Environment named `production` (used for
+   `main` deploys).
+
+Pushes to `main` sync R2, strip `dist/game`, then run `wrangler deploy`
+(production). Pull requests from this repository strip `dist/game` and upload
+a preview version (`versions upload --preview-alias`); they do not re-upload
+the frozen `game/` tree to R2. Fork PRs build and verify but do not deploy (no
+secrets / fork guard). PR previews share the production R2 game bucket.
+
+Deploy is gated on showcase lint, test, and build only; detector pytest lives
+in the separate CI workflow and does not block the Showcase deploy.
+
+### Post-deploy smoke
+
+After a green production deploy:
+
+1. Open the live URL (`https://fido.kofeejan.com` or
+   `https://fido.<account-subdomain>.workers.dev`).
+2. Confirm Proof (Godot Showcase Web export) loads and plays
+   (`/game/index.html` and `/game/godot-showcase.wasm` from R2 via the Worker).
+3. Confirm Plugin download ZIP is reachable from Install handoff.
+4. Confirm response headers include COOP `same-origin`, COEP `require-corp`,
+   and CORP `same-origin` (site shell from `showcase/site/public/_headers`;
+   `/game/*` from `showcase/site/worker.ts`).

@@ -180,7 +180,7 @@ from an extracted ZIP:
 
 ```sh
 python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/detect-drift.py \
-  --project-root /path/to/godot-project --json
+  --project-root /path/to/godot-project
 ```
 
 From a checkout, use the same launcher or the package module after `uv sync`:
@@ -238,12 +238,19 @@ print(result.state, result.summary.coverage_percent)
 This repo ships a frozen Godot 4.6.3 deck-builder fixture and a linked React
 site that walks through real Fido findings beside a playable Web export.
 
+Live site (once DNS is attached): [https://fido.kofeejan.com](https://fido.kofeejan.com).
+Until then, use the Worker URL (`fido.<account-subdomain>.workers.dev`) after
+deploy, or run locally:
+
 ```sh
 npm run showcase:dev
 ```
 
 Artifacts live under `showcase/site/public/` (`drift.json`, `game/`, downloads).
-The fixture project is `showcase/godot-deckbuilder/`.
+On the live site, `game/` is served from R2 via Worker `fido` (wasm exceeds the
+Workers static-asset size limit); local dev still uses `public/game/` directly.
+The fixture project is `showcase/godot-deckbuilder/`. Operator notes for
+Cloudflare Workers + R2 deploy live in [`release/README.md`](release/README.md).
 
 ---
 
@@ -257,12 +264,13 @@ High-level layout:
 | `plugins/gdd-drift-detector/` | Codex host adapter for Fido (skills + launcher) |
 | `showcase/` | Demo site + Godot fixture |
 | `tests/` | Automated tests |
-| `docs/adr/` | Architecture decision records |
 | `release/` | Version pins and release verification |
 
 Development setup, checks, ZIP rebuild, and PR expectations are in
 [**CONTRIBUTING.md**](CONTRIBUTING.md). Product vocabulary lives in
-[`CONTEXT.md`](CONTEXT.md).
+[`CONTEXT.md`](CONTEXT.md). Please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md). Security reports:
+[SECURITY.md](SECURITY.md).
 
 Rebuild the downloadable standalone plugin package after packaging changes:
 

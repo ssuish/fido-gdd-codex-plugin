@@ -167,10 +167,10 @@ class ScanResult:
     duration_ms: int
 
     def to_dict(self) -> dict[str, object]:
-        priority_findings: list[dict[str, object]] = []
-        for finding in self.findings:
-            if finding.status not in {"MISSING", "RENAMED?", "ORPHANED"}:
-                continue
+        from .narrative import next_actions, priority_findings
+
+        priority: list[dict[str, object]] = []
+        for finding in priority_findings(self):
             name = (
                 finding.tracked_entity.name
                 if finding.tracked_entity
@@ -178,7 +178,7 @@ class ScanResult:
                 if finding.code_entity
                 else "Unknown"
             )
-            priority_findings.append(
+            priority.append(
                 {
                     "status": finding.status,
                     "name": name,
@@ -187,49 +187,15 @@ class ScanResult:
                     ),
                 }
             )
-        next_actions: list[str] = []
-        if self.warnings:
-            next_actions.append("Resolve warnings, then rerun the local scan.")
-        if self.advisories:
-            next_actions.append(
-                "Review scan advisories; put [entity: type] before each intended "
-                "name, then rerun the local scan."
-            )
-        if not self.tracked_entities:
-            next_actions.append(
-                "Coverage is N/A: not marked yet; add "
-                "[entity: type] before intended names, then rerun the local scan."
-            )
-        if any(finding.status == "MISSING" for finding in self.findings):
-            next_actions.append(
-                "MISSING ownership: implement or unmark/remove each tracked entity."
-            )
-        if any(finding.status == "RENAMED?" for finding in self.findings):
-            next_actions.append(
-                "RENAMED? ownership: add accepted_mappings or reject each candidate; "
-                "do not count it as matched without accepted_mappings."
-            )
-        if any(finding.status == "ORPHANED" for finding in self.findings):
-            next_actions.append(
-                "ORPHANED ownership: track, exclude in drift.toml, or remove each "
-                "top-level symbol."
-            )
-        if any(finding.status == "PLANNED" for finding in self.findings):
-            next_actions.append(
-                "PLANNED ownership: keep entity outside the current coverage slice "
-                "until it is ready."
-            )
-        if not next_actions:
-            next_actions.append("Review drift_report.md for full scan evidence.")
         summary = self.summary.to_dict()
         summary.update(
             {
                 "state": self.state,
                 "coverage_qualified": self.state == "PARTIAL",
-                "priority_findings": priority_findings,
+                "priority_findings": priority,
                 "warning_count": len(self.warnings),
                 "report": "drift_report.md",
-                "next_actions": next_actions,
+                "next_actions": next_actions(self),
                 "advisory_count": len(self.advisories),
             }
         )

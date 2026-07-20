@@ -582,7 +582,7 @@
     }
   ],
   "scan": {
-    "duration_ms": 16,
+    "duration_ms": 21,
     "project_root": "/home/ssuish/projects/codex-hackathon/showcase/godot-deckbuilder",
     "state": "COMPLETE"
   },

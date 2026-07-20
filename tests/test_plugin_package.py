@@ -57,6 +57,68 @@ def test_launcher_help_does_not_provision_or_scan() -> None:
     assert "--project-root" in completed.stdout
 
 
+def test_normalize_detector_args_strips_separator_and_json() -> None:
+    module = _load_launcher_module()
+
+    assert module.normalize_detector_args(
+        ["--", "--gdd", "GDD.md", "--json", "--source", "a.gd"]
+    ) == ["--gdd", "GDD.md", "--source", "a.gd"]
+    assert module.normalize_detector_args(["--gdd", "design.md"]) == [
+        "--gdd",
+        "design.md",
+    ]
+
+
+def test_launcher_forwards_gdd_and_source_to_detector(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = _load_launcher_module()
+    package = tmp_path / "standalone"
+    (package / "src" / "gdd_drift_detector").mkdir(parents=True)
+    (package / "pyproject.toml").write_text("[project]\nname='demo'\n")
+    python = tmp_path / "python"
+    python.write_text("#!/bin/sh\n")
+    python.chmod(0o755)
+    captured: dict[str, object] = {}
+
+    def fake_run(command, env=None, check=False):  # type: ignore[no-untyped-def]
+        captured["command"] = list(command)
+        captured["env"] = env
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(module, "ensure_environment", lambda *_args: python)
+    monkeypatch.setattr(module, "_plugin_root", lambda: PLUGIN)
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    code = module.main(
+        [
+            "--project-root",
+            str(tmp_path / "project"),
+            "--detector-root",
+            str(package),
+            "--gdd",
+            "GDD.md",
+            "--source",
+            "player.gd",
+            "--json",
+        ]
+    )
+
+    assert code == 0
+    command = captured["command"]
+    assert isinstance(command, list)
+    assert command[:5] == [
+        str(python),
+        "-m",
+        "gdd_drift_detector",
+        "--project-root",
+        str(tmp_path / "project"),
+    ]
+    assert command[5] == "--json"
+    assert command.count("--json") == 1
+    assert command[6:] == ["--gdd", "GDD.md", "--source", "player.gd"]
+
+
 def test_launcher_reports_missing_runtime_without_touching_target_project(
     tmp_path: Path,
 ) -> None:

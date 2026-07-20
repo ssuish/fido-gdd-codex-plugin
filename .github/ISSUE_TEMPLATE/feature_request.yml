@@ -1,0 +1,55 @@
+name: Feature request
+description: Suggest an improvement to Fido / gdd-drift-detector
+title: "[feat] "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Prefer **Fido** in user-facing wording. Keep the technical id
+        `gdd-drift-detector` for package/plugin paths unless you are proposing
+        a deliberate rename.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What friction or gap are you hitting today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What should Fido do differently?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Primary surface
+      options:
+        - Detector / CLI (scan, reports, drift.toml)
+        - Codex plugin / skills
+        - Showcase website or Install handoff
+        - Docs / contributor experience
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: stack
+    attributes:
+      label: Godot / Codex relevance
+      options:
+        - Godot 4 + GDScript (current stack)
+        - Codex host adapter only
+        - Future engine or host (describe below)
+        - Not stack-specific
+    validations:
+      required: true
+  - type: textarea
+    id: extras
+    attributes:
+      label: Additional context
+      description: Alternatives considered, examples, or links.
+    validations:
+      required: false

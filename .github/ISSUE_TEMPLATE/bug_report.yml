@@ -1,0 +1,82 @@
+name: Bug report
+description: Something is broken or unexpected in Fido / gdd-drift-detector
+title: "[bug] "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. For security issues, use private vulnerability
+        reporting — see [SECURITY.md](https://github.com/ssuish/gdd-plugin/blob/main/SECURITY.md).
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong in one or two sentences?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps someone else can follow.
+      placeholder: |
+        1. Install via standalone ZIP / repo clone
+        2. Run /detect-drift (or CLI) on …
+        3. Observe …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include error text, drift_report snippets, or screenshots if helpful.
+    validations:
+      required: true
+  - type: dropdown
+    id: install_path
+    attributes:
+      label: Install path
+      options:
+        - Standalone ZIP (gdd-drift-detector.zip)
+        - From this repository (local marketplace)
+        - Other / unclear
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: e.g. Windows 11, macOS 15, Ubuntu 24.04 (WSL2)
+    validations:
+      required: true
+  - type: input
+    id: codex_version
+    attributes:
+      label: Codex / ChatGPT host
+      description: Codex CLI version, ChatGPT desktop, or "N/A" for CLI-only.
+      placeholder: e.g. Codex CLI 0.x / ChatGPT desktop / N/A
+    validations:
+      required: true
+  - type: input
+    id: godot_version
+    attributes:
+      label: Godot version
+      description: Project Godot version, or "N/A" if not applicable.
+      placeholder: e.g. 4.6.3 / N/A
+    validations:
+      required: true
+  - type: input
+    id: fido_version
+    attributes:
+      label: Fido / plugin version
+      description: release/manifest version, ZIP date, or git commit if known.
+      placeholder: e.g. 0.1.0 / commit sha / unknown
+    validations:
+      required: false

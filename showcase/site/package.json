@@ -10,7 +10,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types"
+    "test": "node --test --experimental-strip-types",
+    "sync:game": "node scripts/sync-game-r2.mjs",
+    "strip:game": "node scripts/strip-game-from-dist.mjs",
+    "deploy": "npm run build && npm run sync:game && npm run strip:game && wrangler deploy",
+    "deploy:preview": "npm run sync:game && npm run strip:game && wrangler versions upload"
   },
   "dependencies": {
     "react": "19.2.7",
@@ -21,6 +25,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.3",
     "typescript": "7.0.2",
-    "vite": "8.1.5"
+    "vite": "8.1.5",
+    "wrangler": "^4.112.0"
   }
 }
