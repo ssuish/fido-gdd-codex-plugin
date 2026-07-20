@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from gdd_drift_detector.__main__ import main
 from gdd_drift_detector.commands.scan import run_scan
 
 FIXTURE = Path(__file__).parent / "fixtures" / "godot-project"
@@ -51,3 +52,39 @@ def test_run_scan_prints_typed_failure_json_on_stderr(
     assert code == 2
     assert captured.out == ""
     assert json.loads(captured.err)["error"]["code"] == "INVALID_PROJECT"
+
+
+def test_legacy_and_explicit_scan_argv_produce_equivalent_results(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_fixture(tmp_path)
+    shared = [
+        "--project-root",
+        str(root),
+        "--gdd",
+        "GDD.md",
+        "--source",
+        "scripts/player_controller.gd",
+        "--json",
+    ]
+
+    legacy_code = main(shared)
+    legacy = capsys.readouterr()
+    explicit_code = main(["scan", *shared])
+    explicit = capsys.readouterr()
+
+    assert legacy_code == 0
+    assert explicit_code == 0
+    assert json.loads(legacy.out) == json.loads(explicit.out)
+    assert legacy.err == ""
+    assert explicit.err == ""
+
+
+def test_flag_first_help_is_scan_help(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as exited:
+        main(["--help"])
+
+    captured = capsys.readouterr()
+    assert exited.value.code == 0
+    assert "--project-root" in captured.out
+    assert "--json" in captured.out
