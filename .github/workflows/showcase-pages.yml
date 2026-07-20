@@ -3,10 +3,8 @@ name: Showcase Workers
 on:
   push:
     branches: [main]
-  pull_request:
     paths:
       - "showcase/**"
-      - ".github/workflows/showcase-pages.yml"
 
 concurrency:
   group: showcase-workers-${{ github.workflow }}-${{ github.ref }}
@@ -19,7 +17,7 @@ jobs:
   deploy:
     name: Build and deploy
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+    environment: production
     steps:
       - uses: actions/checkout@v5
 
@@ -50,10 +48,9 @@ jobs:
       - name: Assert production headers in dist
         run: test -f showcase/site/dist/_headers
 
-      # Frozen Showcase Web export: sync R2 only on production. PR previews
-      # share bucket fido-showcase-game via the Worker /game/* proxy.
+      # Frozen Showcase Web export: sync R2 on production, then strip from
+      # Worker assets. Live /game/* is served from bucket fido-showcase-game.
       - name: Sync game/ to R2
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: showcase/site
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -61,55 +58,18 @@ jobs:
         run: npm run sync:game
 
       - name: Strip game/ from dist
-        if: >
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-          (github.event_name == 'pull_request' &&
-           github.event.pull_request.head.repo.full_name == github.repository)
         working-directory: showcase/site
         run: npm run strip:game
 
       - name: Assert game excluded from Worker assets
-        if: >
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-          (github.event_name == 'pull_request' &&
-           github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           test -f showcase/site/dist/_headers
           test ! -e showcase/site/dist/game
 
       - name: Deploy Worker (production)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: showcase/site
           command: deploy
-
-      - name: Sanitize preview alias
-        id: preview_alias
-        if: >
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          raw="${{ github.head_ref }}"
-          alias=$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//; s/^$/preview/')
-          # Aliases must start with a lowercase letter.
-          case "$alias" in
-            [a-z]*) ;;
-            *) alias="b-${alias}" ;;
-          esac
-          echo "alias=${alias}" >> "$GITHUB_OUTPUT"
-
-      - name: Upload Worker preview
-        if: >
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository
-        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: showcase/site
-          command: >-
-            versions upload
-            --preview-alias=${{ steps.preview_alias.outputs.alias }}

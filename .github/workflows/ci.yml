@@ -10,6 +10,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      showcase: ${{ steps.filter.outputs.showcase }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            showcase:
+              - "showcase/**"
+
   python:
     name: Python
     runs-on: ubuntu-latest
@@ -41,6 +56,8 @@ jobs:
 
   showcase:
     name: Showcase
+    needs: changes
+    if: needs.changes.outputs.showcase == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

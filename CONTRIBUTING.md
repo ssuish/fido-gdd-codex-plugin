@@ -34,7 +34,7 @@ npm --prefix showcase/site install   # when working on the showcase
 | `showcase/site/` | Vite/React showcase (`public/drift.json`, Web export, downloads ZIP). Live: Worker `fido` + R2 for `/game/*` |
 | `tests/` | Pytest suite (detector, plugin package, release acceptance, showcase) |
 | `release/` | Version manifest, release checklist, Showcase Workers/R2 deploy ops |
-| `.github/workflows/showcase-pages.yml` | Showcase lint/test/build + Workers deploy / PR preview |
+| `.github/workflows/showcase-pages.yml` | Production Workers deploy on `main` when `showcase/` changes |
 | `scripts/build_standalone_plugin_zip.py` | Builds the downloadable plugin ZIP |
 | `CHANGELOG.md` | Keep a Changelog release notes for collaborators and users |
 | `docs/` | Maintainers' **local-only** notes (gitignored; not in the published tree) |
