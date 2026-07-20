@@ -30,9 +30,22 @@ def _build_parser() -> argparse.ArgumentParser:
     scan_parser.add_argument("--source", action="append", default=[], type=Path)
     scan_parser.add_argument("--json", required=True, action="store_true")
 
-    subparsers.add_parser(
+    context_parser = subparsers.add_parser(
         "context",
-        help="Reserved: generate the game design context block (fido context)",
+        help="Generate the game design context block (fido context)",
+    )
+    context_parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=Path.cwd(),
+        help="Godot project root (default: current directory)",
+    )
+    context_parser.add_argument(
+        "--print",
+        dest="print_block",
+        required=True,
+        action="store_true",
+        help="Print the context block to stdout (required in this release slice)",
     )
 
     return parser
@@ -45,7 +58,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "scan":
         return run_scan(args.project_root, gdd=args.gdd, source=args.source)
     if args.command == "context":
-        return run_context()
+        return run_context(args.project_root)
     raise AssertionError(f"unhandled command: {args.command}")
 
 

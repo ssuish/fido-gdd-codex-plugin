@@ -39,7 +39,7 @@ def parse_gdscript(
         relative_path,
         name=script_name,
         kind="script",
-        line=extends.start_point.row + 1 if extends else 1,
+        line=_byte_line(source, extends.start_byte) if extends else 1,
         parent=None,
     )
     entities.append(script_entity)
@@ -50,7 +50,7 @@ def parse_gdscript(
                 relative_path,
                 name=_node_name(source, node),
                 kind="class",
-                line=_node_line(node),
+                line=_node_line(source, node),
                 parent=None,
             )
             for node in tree.root_node.children
@@ -76,7 +76,7 @@ def parse_gdscript(
                     relative_path,
                     name=_node_name(source, node),
                     kind="class",
-                    line=name_node.start_point.row + 1,
+                    line=_byte_line(source, name_node.start_byte),
                     parent=parent,
                 )
                 entities.append(class_entity_for_node)
@@ -89,7 +89,7 @@ def parse_gdscript(
                     relative_path,
                     name=_node_name(source, node),
                     kind="function",
-                    line=name_node.start_point.row + 1,
+                    line=_byte_line(source, name_node.start_byte),
                     parent=parent,
                 )
                 entities.append(function_entity)
@@ -100,7 +100,7 @@ def parse_gdscript(
                 relative_path,
                 name=_node_name(source, node),
                 kind="signal",
-                line=_node_line(node),
+                line=_node_line(source, node),
                 parent=parent,
             )
             entities.append(signal_entity)
@@ -112,7 +112,7 @@ def parse_gdscript(
                 relative_path,
                 name=_node_name(source, node),
                 kind="exported_variable",
-                line=_node_line(node),
+                line=_node_line(source, node),
                 parent=parent,
             )
             entities.append(variable_entity)
@@ -143,6 +143,15 @@ def parse_gdscript(
     return entities, relationships
 
 
+def _byte_line(source: bytes, start_byte: int) -> int:
+    """Line number from byte offset.
+
+    Avoid Node.start_point after child_by_field_name: on Python 3.10 the
+    tree-sitter GDScript binding use-after-frees and segfaults on reparse.
+    """
+    return source.count(b"\n", 0, start_byte) + 1
+
+
 def _node_name(source: bytes, node: Node) -> str:
     name_node = node.child_by_field_name("name")
     if name_node is None:
@@ -150,14 +159,14 @@ def _node_name(source: bytes, node: Node) -> str:
     return source[name_node.start_byte : name_node.end_byte].decode("utf-8")
 
 
-def _node_line(node: Node) -> int:
+def _node_line(source: bytes, node: Node) -> int:
     name_node = node.child_by_field_name("name")
     if name_node is None:
         raise ScanFailure(
             "UNSUPPORTED_SOURCE",
             "GDScript node is missing a name field",
         )
-    return name_node.start_point.row + 1
+    return _byte_line(source, name_node.start_byte)
 
 
 def _is_exported(node: Node) -> bool:
