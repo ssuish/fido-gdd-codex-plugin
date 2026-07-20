@@ -29,13 +29,11 @@ def _build_parser() -> argparse.ArgumentParser:
     scan_parser.add_argument("--gdd", action="append", default=[], type=Path)
     scan_parser.add_argument("--source", action="append", default=[], type=Path)
     scan_parser.add_argument("--json", required=True, action="store_true")
-    scan_parser.set_defaults(handler="scan")
 
-    context_parser = subparsers.add_parser(
+    subparsers.add_parser(
         "context",
-        help="Print design context for agents (reserved)",
+        help="Reserved: generate the game design context block (fido context)",
     )
-    context_parser.set_defaults(handler="context")
 
     return parser
 
@@ -44,12 +42,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     raw = list(sys.argv[1:] if argv is None else argv)
     parser = _build_parser()
     args = parser.parse_args(normalize_argv(raw))
-    if args.handler == "scan":
+    if args.command == "scan":
         return run_scan(args.project_root, gdd=args.gdd, source=args.source)
-    if args.handler == "context":
+    if args.command == "context":
         return run_context()
-    parser.error(f"unknown command: {args.command}")
-    return 2
+    raise AssertionError(f"unhandled command: {args.command}")
 
 
-__all__ = ["main", "normalize_argv"]
+__all__ = ["main"]
