@@ -174,7 +174,9 @@ class ScanResult:
             name = (
                 finding.tracked_entity.name
                 if finding.tracked_entity
-                else finding.code_entity.name if finding.code_entity else "Unknown"
+                else finding.code_entity.name
+                if finding.code_entity
+                else "Unknown"
             )
             priority.append(
                 {

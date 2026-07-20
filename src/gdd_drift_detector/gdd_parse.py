@@ -21,7 +21,9 @@ _HEADING = re.compile(r"^\s{0,3}#{1,6}\s+(?P<name>.+?)\s*#*\s*$")
 _LIST_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+(?P<name>.+?)\s*$")
 
 
-def parse_gdd_sources(root: Path, paths: tuple[Path, ...]) -> tuple[
+def parse_gdd_sources(
+    root: Path, paths: tuple[Path, ...]
+) -> tuple[
     tuple[TrackedEntity, ...],
     tuple[CandidateEntity, ...],
     tuple[ScanWarning, ...],
