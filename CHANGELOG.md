@@ -17,7 +17,15 @@ aligned with `release/manifest.json`.
 
 ### Changed
 
+- Detector engine internals split into named modules (`discovery`, `gdd_parse`,
+  `gdscript_parse`, `matching`, `artifacts`, `narrative`) behind the same
+  `scan()` boundary; Graph artifact and Drift report share one next-actions
+  narrative.
+
 ### Fixed
+
+- Launcher forwards `--gdd` / `--source` (and strips a redundant `--json`) to the
+  detector CLI so skill and peer examples match runtime behavior.
 
 ## [0.1.0] - 2026-07-19
 

@@ -180,7 +180,7 @@ from an extracted ZIP:
 
 ```sh
 python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/detect-drift.py \
-  --project-root /path/to/godot-project --json
+  --project-root /path/to/godot-project
 ```
 
 From a checkout, use the same launcher or the package module after `uv sync`:

@@ -47,7 +47,7 @@ ZIP or checkout:
 
 ```sh
 python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/detect-drift.py \
-  --project-root /path/to/godot-project --json
+  --project-root /path/to/godot-project
 ```
 
 From a checkout after `uv sync`, package module also works:
