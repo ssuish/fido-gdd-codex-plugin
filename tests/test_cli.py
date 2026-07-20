@@ -200,6 +200,31 @@ def test_context_appends_or_replaces_only_its_delimited_agents_block(
     assert agents.read_text() == replaced
 
 
+def test_context_replace_preserves_crlf_non_fido_content(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_showcase(tmp_path)
+    agents = root / "AGENTS.md"
+    prefix = b"# Local instructions\r\n"
+    suffix = b"\r\nKeep this note.\r\n"
+    agents.write_bytes(
+        prefix
+        + b"<!-- fido:context:start -->\r\nold block\r\n"
+        + b"<!-- fido:context:end -->"
+        + suffix
+    )
+
+    code = main(["context", "--project-root", str(root)])
+    capsys.readouterr()
+    updated = agents.read_bytes()
+
+    assert code == 0
+    assert updated.startswith(prefix)
+    assert updated.endswith(suffix)
+    assert b"old block" not in updated
+    assert b"\n" not in updated.replace(b"\r\n", b"")
+
+
 def test_context_update_only_noops_without_block_and_print_stays_stdout_only(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -264,6 +289,77 @@ def test_context_print_invalid_project_emits_typed_failure(
     assert code == 2
     assert captured.out == ""
     assert json.loads(captured.err)["error"]["code"] == "INVALID_PROJECT"
+
+
+def test_context_print_uses_readme_fallback_with_untracked_candidates(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").unlink()
+    (root / "README.md").write_text(
+        "# Moonlit Deckbuilder\n\n## Combat loop\nBuild a deck to survive each run.\n"
+    )
+
+    code = main(["context", "--print", "--project-root", str(root)])
+
+    captured = capsys.readouterr()
+    assert code == 0
+    assert captured.err == ""
+    assert "Moonlit Deckbuilder" in captured.out
+    assert "### Untracked design candidates (lower confidence)" in captured.out
+    assert "- **Moonlit Deckbuilder** *(README.md:1)*" in captured.out
+    assert "- **Combat loop** *(README.md:3)*" in captured.out
+
+
+def test_context_print_marks_zero_marker_gdd_candidates_as_untracked(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("# Combat loop\n- Reward drafting\n")
+
+    code = main(["context", "--print", "--project-root", str(root)])
+
+    captured = capsys.readouterr()
+    assert code == 0
+    assert "### Untracked design candidates (lower confidence)" in captured.out
+    assert "- **Combat loop** *(GDD.md:1)*" in captured.out
+    assert "- **Reward drafting** *(GDD.md:2)*" in captured.out
+    assert "**Coverage:** 0/0 tracked entities implemented (N/A)" in captured.out
+
+
+def test_context_print_without_design_text_suggests_setup_gdd(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").unlink()
+
+    code = main(["context", "--print", "--project-root", str(root)])
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out == ""
+    assert "setup-gdd" in captured.err
+    assert "re-run `fido context`" in captured.err
+
+
+def test_context_empty_gdd_uses_readme_or_suggests_setup_gdd(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_fixture(tmp_path)
+    (root / "GDD.md").write_text("")
+    (root / "README.md").write_text("# Moonlit Deckbuilder\n")
+
+    fallback_code = main(["context", "--print", "--project-root", str(root)])
+    fallback = capsys.readouterr()
+    (root / "README.md").unlink()
+
+    cold_start_code = main(["context", "--print", "--project-root", str(root)])
+    cold_start = capsys.readouterr()
+
+    assert fallback_code == 0
+    assert "Moonlit Deckbuilder" in fallback.out
+    assert cold_start_code == 2
+    assert "setup-gdd" in cold_start.err
 
 
 def test_context_print_leaves_legacy_scan_intact(

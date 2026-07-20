@@ -6,6 +6,8 @@ from pathlib import Path
 
 _START = "<!-- fido:context:start -->"
 _END = "<!-- fido:context:end -->"
+_START_BYTES = _START.encode()
+_END_BYTES = _END.encode()
 
 
 def write_context_block(path: Path, block: str, *, update_only: bool) -> bool:
@@ -13,24 +15,31 @@ def write_context_block(path: Path, block: str, *, update_only: bool) -> bool:
     if not path.exists():
         if update_only:
             return False
-        path.write_text(block, encoding="utf-8")
+        path.write_bytes(block.encode())
         return True
 
-    content = path.read_text(encoding="utf-8")
-    start = content.find(_START)
-    end = content.find(_END, start)
+    content = path.read_bytes()
+    newline = _newline(content)
+    encoded_block = block.encode().replace(b"\n", newline)
+    start = content.find(_START_BYTES)
+    end = content.find(_END_BYTES, start)
     if start != -1 and end != -1:
-        replacement_end = end + len(_END)
+        replacement_end = end + len(_END_BYTES)
         suffix = content[replacement_end:]
-        replacement = block.rstrip("\n") if suffix.startswith("\n") else block
-        path.write_text(
-            content[:start] + replacement + suffix,
-            encoding="utf-8",
+        replacement = (
+            encoded_block.rstrip(b"\r\n")
+            if suffix.startswith(newline)
+            else encoded_block
         )
+        path.write_bytes(content[:start] + replacement + suffix)
         return True
     if update_only:
         return False
 
-    separator = "" if not content or content.endswith("\n\n") else "\n"
-    path.write_text(content + separator + block, encoding="utf-8")
+    separator = b"" if not content or content.endswith(newline * 2) else newline
+    path.write_bytes(content + separator + encoded_block)
     return True
+
+
+def _newline(content: bytes) -> bytes:
+    return b"\r\n" if b"\r\n" in content else b"\n"

@@ -16,6 +16,7 @@ def render_context_block(result: ScanResult, *, verbose: bool = False) -> str:
     missing_lines = _missing_lines(result)
     coverage = _coverage_line(result)
     do_not_add = _do_not_add_lines(result)
+    candidate_lines = _candidate_lines(result)
 
     parts = [
         "<!-- fido:context:start -->",
@@ -27,6 +28,7 @@ def render_context_block(result: ScanResult, *, verbose: bool = False) -> str:
         "### Design intent",
         *intent_lines,
         "",
+        *candidate_lines,
         "### Implemented",
         implemented,
         "",
@@ -89,6 +91,18 @@ def _implemented_line(result: ScanResult) -> str:
     if not names:
         return "None"
     return ", ".join(names)
+
+
+def _candidate_lines(result: ScanResult) -> list[str]:
+    if not result.candidates:
+        return []
+    lines = ["### Untracked design candidates (lower confidence)", ""]
+    lines.extend(
+        f"- **{candidate.name}** *({candidate.path}:{candidate.line})*"
+        for candidate in result.candidates[:3]
+    )
+    lines.append("")
+    return lines
 
 
 def _missing_lines(result: ScanResult) -> list[str]:

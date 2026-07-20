@@ -11,6 +11,9 @@ aligned with `release/manifest.json`.
 
 ### Added
 
+- `fido context` now creates or refreshes its game design context block in
+  `AGENTS.md` by default; `--print` remains stdout-only and `--update-only`
+  refreshes only an existing Fido block.
 - Live Showcase website deploy (GitHub Actions + Wrangler) with production
   isolation headers (`COOP` / `COEP` / `CORP`) for the Godot Web export;
   intended production URL `https://fido.kofeejan.com`.
