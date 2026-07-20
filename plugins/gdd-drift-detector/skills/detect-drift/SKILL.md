@@ -16,10 +16,11 @@ This skill only scans. For GDD conventions or drafting, use the separate
    project is untracked or the user has no GDD yet, direct them to `setup-gdd`
    instead of inventing documentation.
 3. Invoke bundled `scripts/detect-drift.py` from plugin root with
-   `--project-root <root>`. The standalone plugin package embeds the detector
-   beside the plugin; `GDD_DETECTOR_ROOT` is optional fallback only.
+   `--project-root <root>`. The launcher already adds `--json`; do not pass
+   `--json` again. The standalone plugin package embeds the detector beside the
+   plugin; `GDD_DETECTOR_ROOT` is optional fallback only.
 4. Read JSON result from stdout. Report state, coverage, priority findings,
-   warnings, advisories, candidates, and next actions. Explain
+   warnings, advisories, candidates, and `summary.next_actions`. Explain
    `EMPTY_MARKER_NAME` as a prefix-only marker footgun: put `[entity: type]`
    before the name. Advisories do not enter warnings, make scan `PARTIAL`, or
    qualify coverage. For unmarked `CANDIDATE` rows, say
@@ -31,13 +32,11 @@ Preserve `drift.toml`; accepted rename mappings live under `[accepted_mappings]`
 Never mutate GDD, source, or `drift.toml` — only generated report artifacts.
 
 If coverage is `N/A`, say project is not marked yet and direct user to
-`setup-gdd` or prefix markers. Explain ownership next actions without changing
-status policy:
+`setup-gdd` or prefix markers. Prefer report `next_actions` for ownership
+guidance; keep status labels unchanged:
 
-- `MISSING`: implement or unmark/remove.
-- `RENAMED?`: add `accepted_mappings` or reject; mapping required for match.
-- `ORPHANED`: track, exclude in `drift.toml`, or remove.
-- `PLANNED`: outside current coverage slice.
+- `MISSING` / `RENAMED?` / `ORPHANED` / `PLANNED`: follow the matching
+  ownership line in `summary.next_actions` or `drift_report.md`.
 
 If user needs project config, offer this paste-only starter and ask them to save
 it themselves. Never auto-write it:
