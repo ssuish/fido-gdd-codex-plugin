@@ -114,6 +114,7 @@ def test_launcher_forwards_gdd_and_source_to_detector(
         "--project-root",
         str(tmp_path / "project"),
     ]
+    assert "scan" not in command, "launcher must keep legacy flag-first scan argv"
     assert command[5] == "--json"
     assert command.count("--json") == 1
     assert command[6:] == ["--gdd", "GDD.md", "--source", "player.gd"]
