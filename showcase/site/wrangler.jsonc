@@ -1,8 +1,17 @@
 {
   "name": "fido",
+  "main": "./worker.ts",
   "compatibility_date": "2026-07-20",
   "preview_urls": true,
   "assets": {
-    "directory": "./dist"
-  }
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/game/*"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "GAME",
+      "bucket_name": "fido-showcase-game"
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Keep in sync with public/_headers (Workers static assets production).
+// Keep in sync with public/_headers (site shell) and worker.ts (/game/* from R2).
 const godotHeaders = {
   "Cross-Origin-Opener-Policy": "same-origin",
   "Cross-Origin-Embedder-Policy": "require-corp",

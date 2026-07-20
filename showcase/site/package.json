@@ -11,8 +11,10 @@
     "build": "tsc -b && vite build",
     "lint": "tsc --noEmit",
     "test": "node --test --experimental-strip-types",
-    "deploy": "wrangler deploy",
-    "deploy:preview": "wrangler versions upload"
+    "sync:game": "node scripts/sync-game-r2.mjs",
+    "strip:game": "node scripts/strip-game-from-dist.mjs",
+    "deploy": "npm run build && npm run sync:game && npm run strip:game && wrangler deploy",
+    "deploy:preview": "npm run sync:game && npm run strip:game && wrangler versions upload"
   },
   "dependencies": {
     "react": "19.2.7",
