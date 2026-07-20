@@ -11,12 +11,12 @@ from ..models import ScanFailure
 from ..scanner import scan
 
 
-def run_context(project_root: Path) -> int:
-    """Scan once and print the minimal context block to stdout."""
+def run_context(project_root: Path, *, verbose: bool = False) -> int:
+    """Scan once and print the context block to stdout."""
     try:
         result = scan(project_root)
     except ScanFailure as error:
         print(json.dumps(error.to_dict()), file=sys.stderr)
         return 2
-    print(render_context_block(result), end="")
+    print(render_context_block(result, verbose=verbose), end="")
     return 0

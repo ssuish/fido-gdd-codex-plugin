@@ -5,9 +5,10 @@ from __future__ import annotations
 from .models import Finding, ScanResult
 
 _EXCERPT_MAX = 120
+_VERBOSE_FINDING_MAX = 10
 
 
-def render_context_block(result: ScanResult) -> str:
+def render_context_block(result: ScanResult, *, verbose: bool = False) -> str:
     """Render a deterministic, paste-ready game design context block."""
     identity = _game_identity(result)
     intent_lines = _design_intent_lines(result)
@@ -40,8 +41,10 @@ def render_context_block(result: ScanResult) -> str:
         "Confirm with the developer before implementing features not listed above.",
         "Full drift details: `drift_report.md`.",
         "",
-        "<!-- fido:context:end -->",
     ]
+    if verbose:
+        parts.extend(_verbose_sections(result))
+    parts.append("<!-- fido:context:end -->")
     return "\n".join(parts) + "\n"
 
 
@@ -146,3 +149,72 @@ def _do_not_add_lines(result: ScanResult) -> list[str]:
     if not names:
         return ["- (none)"]
     return [f"- {name}" for name in names]
+
+
+def _verbose_sections(result: ScanResult) -> list[str]:
+    findings = result.findings[:_VERBOSE_FINDING_MAX]
+    sections = [
+        "### Implementation state",
+        "",
+        "| Status | GDD entity | Design intent |",
+    ]
+    sections.append("| --- | --- | --- |")
+    sections.extend(_finding_row(finding) for finding in findings)
+    if len(result.findings) > _VERBOSE_FINDING_MAX:
+        sections.append("")
+        sections.append(
+            f"Showing {_VERBOSE_FINDING_MAX} of {len(result.findings)} findings."
+        )
+    sections.extend(
+        [
+            "",
+            "### Status legend",
+            "",
+            "- `MATCHED`: tracked GDD entity has implementation evidence.",
+            "- `MISSING`: tracked in the GDD, no implementation found.",
+            "- `RENAMED?`: possible implementation match needs confirmation.",
+            "- `PLANNED`: GDD scope intentionally not implemented yet.",
+            "- `ORPHANED`: implementation has no tracked GDD entity.",
+            "",
+            "### Suggested next prompt",
+            "",
+            _suggested_prompt(result),
+            "",
+        ]
+    )
+    return sections
+
+
+def _finding_row(finding: Finding) -> str:
+    entity = finding.tracked_entity
+    name = entity.name if entity is not None else "(untracked)"
+    excerpt = "(no design intent)"
+    if finding.evidence is not None and finding.evidence.gdd_excerpt:
+        excerpt = _bound_excerpt(finding.evidence.gdd_excerpt)
+    table_excerpt = excerpt.replace("|", "\\|").replace("\n", " ")
+    return f"| {finding.status} | {name} | {table_excerpt} |"
+
+
+def _suggested_prompt(result: ScanResult) -> str:
+    finding = next(
+        (
+            finding
+            for finding in result.findings
+            if finding.status in {"MISSING", "RENAMED?"}
+            and finding.tracked_entity is not None
+        ),
+        None,
+    )
+    if finding is None or finding.tracked_entity is None:
+        return "- No missing tracked entity is available for an implementation prompt."
+    excerpt = _gdd_reference(finding)
+    if finding.evidence is not None and finding.evidence.gdd_excerpt:
+        excerpt = _bound_excerpt(finding.evidence.gdd_excerpt)
+    return f"- Implement **{finding.tracked_entity.name}**: {excerpt}"
+
+
+def _gdd_reference(finding: Finding) -> str:
+    entity = finding.tracked_entity
+    if entity is None:
+        return "the GDD entry"
+    return f"the GDD entry at `{entity.path}:{entity.line}`"

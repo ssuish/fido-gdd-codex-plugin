@@ -145,6 +145,29 @@ def test_context_print_is_deterministic(
     assert first.out == second.out
 
 
+def test_context_verbose_adds_details_without_changing_default(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_showcase(tmp_path)
+
+    minimal_code = main(["context", "--print", "--project-root", str(root)])
+    minimal = capsys.readouterr()
+    verbose_code = main(
+        ["context", "--print", "--verbose", "--project-root", str(root)]
+    )
+    verbose = capsys.readouterr()
+
+    assert minimal_code == 0
+    assert verbose_code == 0
+    assert minimal.err == ""
+    assert verbose.err == ""
+    assert "### Implementation state" not in minimal.out
+    assert "### Implementation state" in verbose.out
+    assert "### Status legend" in verbose.out
+    assert "### Suggested next prompt" in verbose.out
+    assert "Implement **Shield**:" in verbose.out
+
+
 def test_context_print_invalid_project_emits_typed_failure(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
