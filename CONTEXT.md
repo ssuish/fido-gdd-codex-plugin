@@ -51,7 +51,7 @@ The committed Godot Web build at `showcase/site/public/game/` (source of truth i
 _Avoid_: fixture `web/` directory, dual export copies, synthetic HTML game shell, bundling the wasm into Workers static assets
 
 **Showcase live deploy**:
-The GitHub Actions + Wrangler path that builds the Showcase website, syncs `game/` to R2 on `main`, strips `game/` from Worker assets, deploys Worker `fido`, and uploads PR preview versions that share the production R2 game bucket.
+The GitHub Actions + Wrangler path that builds the Showcase website, syncs `game/` to R2 on `main` when `showcase/` changes, strips `game/` from Worker assets, and deploys Worker `fido`.
 _Avoid_: Cloudflare Pages deploy, Cloudflare Git integration as the primary path, re-uploading the frozen wasm on every PR
 
 **Showcase slice**:

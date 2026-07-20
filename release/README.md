@@ -42,12 +42,12 @@ and collaborators must treat changelog edits as part of every release change
 
 The Showcase website deploys as a Cloudflare Worker with static assets via
 [`.github/workflows/showcase-pages.yml`](../.github/workflows/showcase-pages.yml)
-(`wrangler deploy` / `wrangler versions upload`). Config lives in
-`showcase/site/wrangler.jsonc` (Worker name `fido`). The Godot Web export under
-`game/` is too large for Workers static assets (25 MiB/file; wasm is ~35 MiB),
-so CI syncs it to R2 bucket **`fido-showcase-game`** and the Worker serves
-`/game/*` from that bucket (same-origin, with isolation headers). Production
-custom domain intent: `https://fido.kofeejan.com`.
+(`wrangler deploy`). Config lives in `showcase/site/wrangler.jsonc` (Worker
+name `fido`). The Godot Web export under `game/` is too large for Workers
+static assets (25 MiB/file; wasm is ~35 MiB), so CI syncs it to R2 bucket
+**`fido-showcase-game`** and the Worker serves `/game/*` from that bucket
+(same-origin, with isolation headers). Production custom domain intent:
+`https://fido.kofeejan.com`.
 
 ### Human prerequisites
 
@@ -72,14 +72,11 @@ custom domain intent: `https://fido.kofeejan.com`.
 4. Optional: protect the GitHub Environment named `production` (used for
    `main` deploys).
 
-Pushes to `main` sync R2, strip `dist/game`, then run `wrangler deploy`
-(production). Pull requests from this repository strip `dist/game` and upload
-a preview version (`versions upload --preview-alias`); they do not re-upload
-the frozen `game/` tree to R2. Fork PRs build and verify but do not deploy (no
-secrets / fork guard). PR previews share the production R2 game bucket.
-
-Deploy is gated on showcase lint, test, and build only; detector pytest lives
-in the separate CI workflow and does not block the Showcase deploy.
+Pushes to `main` that change `showcase/**` sync R2, strip `dist/game`, then
+run `wrangler deploy` (production). There is no PR preview deploy. Showcase
+lint/test/build on PRs runs in the separate CI workflow when `showcase/**`
+changes; detector pytest always runs there and does not block the Showcase
+deploy.
 
 ### Post-deploy smoke
 
