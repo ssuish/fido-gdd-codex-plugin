@@ -17,6 +17,8 @@
     "deploy:preview": "npm run sync:game && npm run strip:game && wrangler versions upload"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },

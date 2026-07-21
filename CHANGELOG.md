@@ -39,6 +39,11 @@ aligned with `release/manifest.json`.
   Godot Web export iframe mounts only after explicit activation (unavailable
   builds still show the placeholder). No `/game/` network request runs before
   that activation.
+- Showcase landing motion now uses a landing-only GSAP chunk (ScrollTrigger +
+  MotionPathPlugin) with a fidelity-trace SVG entrance, one-shot section
+  reveals, and reduced-motion short-circuit; documentation entry stays CSS-only
+  (active nav, tabs, copy feedback, accordion/disclosure toggles, and hover/
+  focus states — no page-load or scroll reveals).
 - Showcase styles split into shared/landing/docs entry sheets with fluid
   `clamp()` type and spacing, content-driven grids, earlier hero/proof stacking,
   and a fixed mobile docs TOC that no longer hides nested nav links; docs
