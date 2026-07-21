@@ -49,7 +49,8 @@ def test_site_consumes_fixture_generated_artifact_without_synthetic_findings() -
     assert "shouldMountGameEmbed" in source
     app_source = (SITE / "src" / "App.tsx").read_text()
     proof_source = (SITE / "src" / "components" / "ProofSection.tsx").read_text()
-    # No eager /game/ probe on landing mount; iframe mounts only after facade activation.
+    # No eager /game/ probe on landing mount; iframe mounts only after facade
+    # activation.
     assert 'fetch("./game/index.html"' not in app_source
     assert 'fetch("./game/index.html"' not in proof_source
     assert "setGameActivated(true)" in proof_source
@@ -64,7 +65,6 @@ def test_site_consumes_fixture_generated_artifact_without_synthetic_findings() -
     assert "Godot" in (SITE / "public" / "game" / "index.html").read_text()
     assert (SITE / "public" / "marketplace.json").is_file()
     assert (SITE / "public" / "downloads" / "gdd-drift-detector.zip").is_file()
-
 
 
 def _site_styles() -> str:
