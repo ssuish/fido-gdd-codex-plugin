@@ -65,6 +65,11 @@ def test_plugin_leads_with_context_refresh_surfaces() -> None:
     assert session_hooks
     command = session_hooks[0]["hooks"][0]["command"]
     assert "fido-context-hook.sh" in command
+    hook_script = (PLUGIN / "scripts" / "fido-context-hook.sh").read_text(
+        encoding="utf-8"
+    )
+    assert "--update-only" in hook_script
+    assert "--if-stale" in hook_script
     assert "--update-only" in skill or "fido context" in skill
     assert "setup-gdd" in skill
     assert "detect-drift" in skill
@@ -338,6 +343,50 @@ def test_context_hook_prefers_path_fido(tmp_path: Path) -> None:
     assert recorded.startswith("context --project-root")
     assert "--update-only" in recorded
     assert "--if-stale" in recorded
+
+
+def test_context_hook_falls_through_to_bundled_when_path_fido_fails(
+    tmp_path: Path,
+) -> None:
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    fido_log = tmp_path / "fido-args.txt"
+    bundled_log = tmp_path / "bundled-args.txt"
+    fake_fido = bin_dir / "fido"
+    fake_fido.write_text(
+        f'#!/bin/sh\nprintf "%s\\n" "$*" > "{fido_log}"\nexit 3\n',
+        encoding="utf-8",
+    )
+    fake_fido.chmod(0o755)
+    fake_python = bin_dir / "python3"
+    fake_python.write_text(
+        f'#!/bin/sh\nprintf "%s\\n" "$*" > "{bundled_log}"\nexit 0\n',
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+
+    env = {
+        "PATH": str(bin_dir),
+        "PLUGIN_ROOT": str(PLUGIN),
+        "HOME": str(tmp_path),
+    }
+    completed = subprocess.run(
+        ["/bin/bash", str(PLUGIN / "scripts" / "fido-context-hook.sh")],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=env,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "trying bundled launcher" in completed.stderr
+    assert "--update-only" in fido_log.read_text(encoding="utf-8")
+    assert "--if-stale" in fido_log.read_text(encoding="utf-8")
+    bundled = bundled_log.read_text(encoding="utf-8").strip()
+    assert "fido-context.py" in bundled
+    assert "--update-only" in bundled
+    assert "--if-stale" in bundled
 
 
 def test_context_launcher_forwards_context_subcommand(
