@@ -22,7 +22,7 @@ def normalize_argv(argv: Sequence[str]) -> list[str]:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="gdd_drift_detector")
+    parser = argparse.ArgumentParser(prog="fido")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     scan_parser = subparsers.add_parser("scan", help="Run a local drift scan")

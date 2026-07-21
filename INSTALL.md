@@ -1,16 +1,39 @@
 # Install Fido
 
-Fido is a local Codex plugin. The ZIP includes the plugin, both local
-marketplace files, and the detector runtime used by the launcher.
+Fido keeps coding sessions aligned to your GDD via **context refresh**, with an
+optional explicit drift audit. Install the `fido` CLI, the Codex plugin, or
+both. Scans and context refresh stay local: Fido does not upload your GDD or
+source files.
 
 ## Prerequisites
 
-- OpenAI Codex with plugin support
-- [`uv`](https://docs.astral.sh/uv/) on your `PATH`; first scan provisions the
-  embedded detector environment
+- [`uv`](https://docs.astral.sh/uv/) on your `PATH`
 - A Godot 4 + GDScript project
+- For the in-session workflow: OpenAI Codex with plugin support
 
-## Codex CLI
+## CLI (`uv tool install`)
+
+```sh
+uv tool install fido
+fido context
+```
+
+`fido context` refreshes the game design context block in `AGENTS.md` (use
+`--print` for stdout only). Optional cold start: `fido init`. For an explicit
+design-fidelity audit: `fido scan --project-root . --json` (or the Codex
+`detect-drift` skill).
+
+From a checkout without a tool install: `uv sync` then `uv run fido …`. The
+import package remains `gdd_drift_detector`
+(`python -m gdd_drift_detector` routes to the same CLI).
+
+## Codex plugin (standalone ZIP)
+
+The ZIP includes the plugin, both local marketplace files, and the detector
+runtime used by the launcher. First context refresh or scan provisions the
+embedded detector environment with `uv`.
+
+### Codex CLI
 
 Extract the ZIP to a durable directory, then run:
 
@@ -27,35 +50,35 @@ extracted ZIP. In the Codex session, run `/plugins`, choose the local Fido
 marketplace, and install Fido. Start a new Codex session before using its
 bundled skills.
 
-The first scan uses `uv` to provision a cached environment from the embedded
-`pyproject.toml` and `uv.lock`. No `GDD_DETECTOR_ROOT` setting is required.
+No `GDD_DETECTOR_ROOT` setting is required for the standalone package layout.
 
-## ChatGPT desktop
+### ChatGPT desktop
 
 1. Extract the ZIP to a durable directory.
 2. Restart ChatGPT.
 3. Open ChatGPT Work mode or Codex, then open **Plugins**.
 4. Select the local Fido marketplace and install **Fido**.
-5. Start a new chat before asking Fido to scan a project.
+5. Start a new chat before asking Fido to refresh context or audit a project.
 
-Fido remains local-only: it does not upload your GDD or source files.
+### After install
 
-## CLI peer
+Prefer **`fido-context`** / `fido context` so the session already knows design
+intent, gaps, and coverage. SessionStart runs
+`fido context --update-only --if-stale` when the plugin is installed. Use
+`setup-gdd` if the project is untracked, then re-run `fido context`. Run
+`detect-drift` / `fido scan` only when you want a full audit report.
 
-Codex is primary. For a local CLI peer, use existing launcher from extracted
-ZIP or checkout:
+## Launcher fallback
+
+When PATH `fido` is unavailable, use the bundled scripts from an extracted ZIP
+or checkout:
 
 ```sh
+python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/fido-context.py \
+  --project-root /path/to/godot-project
 python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/detect-drift.py \
   --project-root /path/to/godot-project
 ```
 
-From a checkout after `uv sync`, package module also works:
-
-```sh
-uv run python -m gdd_drift_detector --project-root /path/to/godot-project --json
-```
-
-No extra helper script or PyPI install required. See README for prefix-only
-Entity markers, pasteable `drift.toml`, advisory guidance, and ownership next
-actions.
+See README for prefix-only Entity markers, pasteable `drift.toml`, advisory
+guidance, and ownership next actions.

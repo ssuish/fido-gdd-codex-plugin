@@ -2,34 +2,55 @@
 
 **Local design-fidelity checks for your game designs.**
 
-Fido compares your marked game design document (GDD) with implementation symbols
-and reports drift with evidence. Today that means **Godot 4 + GDScript** via a
-**Codex plugin**; more engines are planned. Scans run on your machine. After a
-one-time `uv` provision, the detector does not upload project files or call the
-network.
+Fido keeps AI coding sessions aligned to your marked game design document (GDD)
+by refreshing a **game design context block**, and can run an explicit
+design-fidelity audit when you need full findings. Today that means **Godot 4 +
+GDScript** via a **Codex plugin** and a `fido` CLI; more engines are planned.
+Work runs on your machine. After a one-time `uv` provision, the detector does
+not upload project files or call the network.
 
-Technical package and plugin id remain `gdd-drift-detector` (paths, ZIP name,
-`$gdd-drift-detector:…` skill prefixes).
+The distributable Python package and console command are **`fido`**. Technical
+plugin id and paths remain `gdd-drift-detector` (ZIP name,
+`$gdd-drift-detector:…` skill prefixes, import package `gdd_drift_detector`).
 
 ## Prerequisites
 
-- [OpenAI Codex](https://openai.com/codex/) with plugin support
-- [`uv`](https://docs.astral.sh/uv/) on your `PATH` (used on first run to install
-  pinned detector dependencies)
+- [`uv`](https://docs.astral.sh/uv/) on your `PATH`
 - A Godot 4 project with GDScript sources
+- For the in-session workflow: [OpenAI Codex](https://openai.com/codex/) with
+  plugin support
 
 ## Who this is for
 
 - Game developers who keep (or want) a marked Markdown GDD next to the project
 - **Godot 4 + GDScript** projects (current supported stack)
-- Users of **OpenAI Codex** who want a `/detect-drift` workflow in-session
+- Users who want session context via `fido context` / `fido-context`, with
+  `/detect-drift` available as an explicit audit
 
-This is **not** a Godot editor plugin. Cursor and MCP hosts are future adapters,
-not the current install path.
+This is **not** a Godot editor plugin. Cursor and MCP hosts are future adapters.
 
 ---
 
 ## For game developers
+
+### Install the CLI
+
+```sh
+uv tool install fido
+```
+
+Then from your Godot project root:
+
+```sh
+fido context          # refresh AGENTS.md game design context block
+fido init             # bootstrap AGENTS.md delimiters (optional cold start)
+fido scan --project-root . --json   # explicit drift audit (secondary)
+```
+
+`fido context` is the default daily path: it writes or refreshes the delimited
+context block in `AGENTS.md` so coding sessions already know design intent,
+gaps, and coverage. Prefer it over a full drift audit unless you need deep
+findings.
 
 ### Install the Codex plugin
 
@@ -50,9 +71,9 @@ codex
 # run /plugins, select Fido, install
 ```
 
-Replace the placeholder with the extracted ZIP directory. First drift scan may
-take a moment while `uv` provisions a cached environment from the embedded
-lockfile. Start a new Codex session after installing.
+Replace the placeholder with the extracted ZIP directory. First context refresh
+or scan may take a moment while `uv` provisions a cached environment from the
+embedded lockfile. Start a new Codex session after installing.
 
 **ChatGPT desktop — local marketplace**
 
@@ -76,6 +97,25 @@ codex plugin marketplace add /absolute/path/to/codex-hackathon
 
 `GDD_DETECTOR_ROOT` is an optional fallback if you run the launcher outside the
 standalone package layout; most users do not need it.
+
+### Refresh session context
+
+In Codex, with your Godot project as the working context:
+
+1. Prefer `$gdd-drift-detector:setup-gdd` once if the project is untracked (no
+   usable GDD yet).
+2. Run `$gdd-drift-detector:fido-context` (or ask Codex to refresh Fido context).
+   SessionStart already runs `fido context --update-only --if-stale` when the
+   plugin is installed.
+
+From the CLI peer:
+
+```sh
+fido context --project-root /path/to/godot-project
+```
+
+Useful flags: `--print` (stdout only), `--update-only`, `--if-stale`, `--fresh`,
+`--verbose`.
 
 ### Mark your GDD
 
@@ -108,15 +148,15 @@ no tracked name and produces a Scan advisory; it does not affect coverage.
 
 If you do not have a GDD yet, use the **`setup-gdd`** skill in Codex (bring an
 existing doc, or grill a draft in chat). The skill does not silently write files;
-you save the draft yourself.
+you save the draft yourself, then re-run `fido context`.
 
-### Run a drift scan
+### Run an explicit drift audit
 
-In Codex, with your Godot project as the working context:
+When you want full findings (not just session context), use the secondary audit
+path:
 
-1. Prefer `$gdd-drift-detector:setup-gdd` once if the project is untracked (no
-   marked entities yet).
-2. Run `$gdd-drift-detector:detect-drift` (shorthand: `/detect-drift`).
+1. In Codex: `$gdd-drift-detector:detect-drift` (shorthand: `/detect-drift`).
+2. Or CLI: `fido scan --project-root /path/to/godot-project --json`.
 
 The scan is read-only for GDD, GDScript, and `drift.toml`. It writes only:
 
@@ -175,29 +215,30 @@ exclude = [".godot/**"]
 
 ### CLI peer path
 
-Codex is the primary host. For a local CLI peer, use the existing launcher
-from an extracted ZIP:
+After `uv tool install fido`, the console script is on your `PATH`. From a
+checkout without a tool install:
 
 ```sh
+uv sync
+uv run fido context --project-root /path/to/godot-project
+uv run fido scan --project-root /path/to/godot-project --json
+```
+
+From an extracted standalone ZIP, the bundled launchers still work when PATH
+`fido` is unavailable:
+
+```sh
+python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/fido-context.py \
+  --project-root /path/to/godot-project
 python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/detect-drift.py \
   --project-root /path/to/godot-project
 ```
 
-From a checkout, use the same launcher or the package module after `uv sync`:
+The import package remains `gdd_drift_detector` (`python -m gdd_drift_detector`
+is equivalent to the `fido` router). Explicit inputs when defaults do not fit:
 
 ```sh
-uv sync
-uv run python -m gdd_drift_detector \
-  --project-root /path/to/godot-project \
-  --json
-```
-
-No extra helper script or PyPI install is required.
-
-Explicit inputs when defaults do not fit:
-
-```sh
-uv run python -m gdd_drift_detector \
+fido scan \
   --project-root /path/to/godot-project \
   --gdd design/gameplay.md \
   --source game/player.gd \

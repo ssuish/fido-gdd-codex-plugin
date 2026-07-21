@@ -1,5 +1,5 @@
 [project]
-name = "gdd-drift-detector"
+name = "fido"
 version = "0.1.0"
 description = "Fido: local design-fidelity checks for your game designs (GDD drift detection)."
 readme = "README.md"
@@ -11,6 +11,9 @@ dependencies = [
   "tree-sitter-language-pack>=0.13,<0.14",
 ]
 
+[project.scripts]
+fido = "gdd_drift_detector.cli:main"
+
 [dependency-groups]
 dev = [
   "mypy>=1.13,<2",
@@ -21,6 +24,9 @@ dev = [
 [build-system]
 requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gdd_drift_detector"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

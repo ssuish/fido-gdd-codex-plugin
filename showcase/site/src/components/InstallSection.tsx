@@ -70,10 +70,12 @@ export function InstallSection() {
           </p>
         </li>
         <li className="install-step">
-          <span className="step-label">Scan</span>
+          <span className="step-label">Refresh context</span>
           <p>
             In Codex, run <code>setup-gdd</code> if the project is untracked, then{" "}
-            <code>detect-drift</code> for a local report you can commit beside your work.
+            <code>fido-context</code> (or <code>fido context</code>) so the session already
+            knows design intent, gaps, and coverage. Use <code>detect-drift</code> only for an
+            explicit audit.
           </p>
           <p>
             Mark concepts with the marker before the name: <code>[entity: system] Combat Loop</code>.
