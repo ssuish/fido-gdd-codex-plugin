@@ -3,17 +3,25 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import subprocess
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
 from gdd_drift_detector.__main__ import main
 from gdd_drift_detector.commands.scan import run_scan
 
+ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = Path(__file__).parent / "fixtures" / "godot-project"
-SHOWCASE = Path(__file__).resolve().parents[1] / "showcase" / "godot-deckbuilder"
+SHOWCASE = ROOT / "showcase" / "godot-deckbuilder"
 _FIXED_NOW = datetime(2026, 7, 21, 12, 0, 0, tzinfo=timezone.utc)
 _FIXED_TS = "2026-07-21T12:00:00Z"
 
@@ -59,6 +67,41 @@ def copy_showcase(tmp_path: Path) -> Path:
         ignore=shutil.ignore_patterns(".godot", "*.import"),
     )
     return root
+
+
+def test_project_metadata_identifies_fido_console_distribution() -> None:
+    payload = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    project = payload["project"]
+
+    assert project["name"] == "fido"
+    assert project["scripts"]["fido"] == "gdd_drift_detector.cli:main"
+    assert (ROOT / "src" / "gdd_drift_detector").is_dir()
+
+
+def test_installed_fido_command_exposes_context_workflow() -> None:
+    completed = subprocess.run(
+        ["fido", "context", "--help"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0
+    assert completed.stdout.startswith("usage: fido context")
+    assert "--project-root" in completed.stdout
+    assert "--print" in completed.stdout
+    assert "--update-only" in completed.stdout
+    assert completed.stderr == ""
+
+    init_help = subprocess.run(
+        ["fido", "init", "--help"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert init_help.returncode == 0
+    assert init_help.stdout.startswith("usage: fido init")
+    assert init_help.stderr == ""
 
 
 def test_run_scan_prints_sorted_json_on_success(
