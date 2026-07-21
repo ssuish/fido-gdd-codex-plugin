@@ -43,9 +43,8 @@ codex
 # run /plugins, select Fido, install
 ```
 
-**ChatGPT desktop:** extract the ZIP, restart ChatGPT, open Work mode or Codex →
-**Plugins**, select the local Fido marketplace, install **Fido**, then start a
-new chat.
+**ChatGPT desktop:** extract the ZIP, restart ChatGPT, open ChatGPT Work mode or Codex →
+**Plugins**, select the local Fido marketplace, install **Fido**, then start a new chat.
 
 First context refresh or scan may take a moment while `uv` provisions a cached
 environment from the embedded lockfile.
