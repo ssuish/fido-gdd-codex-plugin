@@ -505,6 +505,32 @@ def test_init_then_context_populates_fido_block(
     assert agents.rstrip().endswith("<!-- fido:context:end -->")
 
 
+def test_context_if_stale_uses_agents_mtime_when_timestamp_missing(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = copy_showcase(tmp_path)
+    agents = root / "AGENTS.md"
+    agents.write_text(
+        "<!-- fido:context:start -->\n"
+        "## Game Design Context\n"
+        "\n"
+        "seeded block without stamp\n"
+        "<!-- fido:context:end -->\n"
+    )
+    baseline = time.time() - 1800
+    older = baseline - 600
+    _set_mtime(agents, baseline)
+    for path in (root / "GDD.md", *root.rglob("*.gd")):
+        _set_mtime(path, older)
+    before = agents.read_bytes()
+
+    code = main(["context", "--if-stale", "--project-root", str(root)])
+    capsys.readouterr()
+
+    assert code == 0
+    assert agents.read_bytes() == before
+
+
 def test_context_if_stale_skips_scan_and_rewrite_when_inputs_unchanged(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

@@ -64,9 +64,10 @@ def block_baseline(agents_path: Path) -> datetime | None:
         text = agents_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return None
-    if extract_context_block(text) is None:
+    block = extract_context_block(text)
+    if block is None:
         return None
-    parsed = parse_last_updated(text)
+    parsed = parse_last_updated(block)
     if parsed is not None:
         return parsed
     try:
@@ -119,7 +120,7 @@ def load_recent_scan_result(
     current = now or context_block.utc_now()
     try:
         age = current.timestamp() - path.stat().st_mtime
-        if age < 0 or age > max_age.total_seconds():
+        if age < 0 or age >= max_age.total_seconds():
             return None
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
