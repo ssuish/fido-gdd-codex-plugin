@@ -178,6 +178,8 @@ def test_install_docs_and_readme_describe_current_install_flows() -> None:
         assert "ChatGPT Work mode or Codex" in document
         assert "Plugins" in document
         assert "start a new chat" in document.lower()
+        assert "uv tool install fido" in document
+        assert "fido context" in document
         assert "manual plugin installer" not in document
         assert "Upload the ZIP directly" not in document
 
@@ -192,10 +194,14 @@ def test_docs_and_detect_skill_describe_mvp_polish_contract() -> None:
     for document in (readme, install):
         assert "OpenAI Codex" in document
         assert "uv" in document
-        assert "drift.toml" in document
         assert "scripts/detect-drift.py" in document
+        assert "fido context" in document
+        assert "fido scan" in document or "detect-drift" in document
         assert "python -m gdd_drift_detector" in document
 
+    assert "drift.toml" in readme
+    assert "uv tool install fido" in readme
+    assert "uv tool install fido" in install
     assert "[entity: type]" in readme
     assert "Add [entity: type] before this name to track it." in readme
     assert "MISSING" in readme
@@ -211,6 +217,7 @@ def test_docs_and_detect_skill_describe_mvp_polish_contract() -> None:
     assert "Add [entity: type] before this name to track it." in detect
     assert "accepted_mappings" in detect
     assert "Never mutate GDD, source, or `drift.toml`" in detect
+    assert "fido-context" in detect or "fido context" in detect
 
 
 def test_plugin_manifest_and_skill_contract() -> None:

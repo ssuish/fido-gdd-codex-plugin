@@ -66,6 +66,8 @@ def test_site_declares_accessible_states_and_responsive_reduced_motion_rules() -
     assert "Install the plugin" in source
     assert source.index("Play the showcase") < source.index("Install the plugin")
     assert "setup-gdd" in source
+    assert "fido-context" in source
+    assert "fido context" in source
     assert "detect-drift" in source
     assert "copyConfirmationMessage" in source
     assert "codex plugin marketplace add /absolute/path/to/extracted-fido" in source
@@ -74,6 +76,7 @@ def test_site_declares_accessible_states_and_responsive_reduced_motion_rules() -
     assert "[entity: system] Combat Loop" in source
     assert "## Combat Loop [entity: system]" not in source
     assert "directly through the Codex app" not in source
+    assert source.index("fido-context") < source.index("detect-drift")
     assert "@media (max-width: 767px)" in styles
     assert "prefers-reduced-motion" in styles
     assert "prefers-color-scheme" not in styles

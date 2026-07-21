@@ -15,7 +15,8 @@ Keep everything local; never upload GDD or source files.
    path).
 2. Run `fido context` for that root (or the bundled
    `scripts/fido-context.py --project-root <root>` when PATH `fido` is
-   unavailable). Default write target is `AGENTS.md`.
+   unavailable). Install PATH `fido` with `uv tool install fido` when you want
+   the console script outside the plugin. Default write target is `AGENTS.md`.
 3. If the command exits non-zero because no readable design text exists, or
    the project is untracked with no usable GDD yet, chain to **`setup-gdd`**
    instead of inventing documentation. After the user saves a GDD, re-run
