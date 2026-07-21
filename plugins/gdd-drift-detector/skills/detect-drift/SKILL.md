@@ -1,14 +1,17 @@
 ---
 name: detect-drift
-description: Run Fido's local GDD-to-GDScript design-fidelity (drift) scan and summarize its report.
+description: Run an explicit Fido design-fidelity (drift) audit scan and summarize its report.
 ---
 
 # Detect drift
 
-Run **Fido** (design-fidelity / GDD drift detector) from the project root. Keep
-the scan local; never upload GDD or source files.
-This skill only scans. For GDD conventions or drafting, use the separate
-`setup-gdd` skill first.
+Run an explicit **Fido** design-fidelity / GDD drift **audit** from the project
+root. This is the secondary path: prefer **`fido-context`** / `fido context` for
+session alignment unless the user asks to scan findings in depth.
+
+Keep the scan local; never upload GDD or source files.
+This skill only scans. For GDD conventions or drafting, use `setup-gdd` first.
+For session memory refresh, use `fido-context`.
 
 1. Resolve target Godot project root. Use current working directory unless user
    gives another path.
@@ -25,7 +28,8 @@ This skill only scans. For GDD conventions or drafting, use the separate
    before the name. Advisories do not enter warnings, make scan `PARTIAL`, or
    qualify coverage. For unmarked `CANDIDATE` rows, say
    `Add [entity: type] before this name to track it.`
-5. Point user to `<root>/drift_report.md` and `<root>/drift.json`.
+5. Point user to `<root>/drift_report.md` and `<root>/drift.json`. After an
+   audit, offer `fido context` if `AGENTS.md` should reflect the latest scan.
 
 Pass repeated `--gdd` and `--source` options when user gives explicit inputs.
 Preserve `drift.toml`; accepted rename mappings live under `[accepted_mappings]`.

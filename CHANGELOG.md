@@ -11,6 +11,9 @@ aligned with `release/manifest.json`.
 
 ### Added
 
+- Codex plugin `fido-context` hero skill plus SessionStart hook that runs
+  `fido context --update-only --if-stale` (PATH `fido`, then bundled launcher;
+  fail-open so sessions are never blocked).
 - `fido context --if-stale` skips scan and rewrite when configured GDD/sources
   are no newer than the block `Last updated` timestamp (falls back to
   `AGENTS.md` mtime); `--fresh` forces a new local scan. Recent `drift.json`
@@ -27,6 +30,9 @@ aligned with `release/manifest.json`.
 
 ### Changed
 
+- Plugin `defaultPrompt` / descriptions lead with session context refresh;
+  `detect-drift` is positioned as an explicit audit, and `setup-gdd` hands off
+  to `fido context` after the GDD is saved.
 - Showcase live deploy moved from Cloudflare Pages to a Workers + static
   assets Worker (`fido`); PR previews use `wrangler versions upload`.
 - Showcase Godot Web export (`game/`) is synced to R2 bucket

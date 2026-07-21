@@ -31,8 +31,9 @@ Offer exactly one of two paths after asking which applies.
    Markers are prefix-only: name follows `[entity: type]`. Heading-suffix forms
    with name before marker are not tracked.
 5. Confirm whether they already have a Godot 4 + GDScript project. If yes, note
-   that `/detect-drift` (or `$gdd-drift-detector:detect-drift`) can scan after
-   they save the marked GDD themselves.
+   that after they save the marked GDD themselves, next step is `fido context`
+   (skill `fido-context`) to refresh the game design context block. Explicit
+   `/detect-drift` remains available later as an audit.
 6. Stop when the user knows which files form the GDD source set and how markers
    work. Do not write files for them.
 
@@ -90,8 +91,9 @@ Offer exactly one of two paths after asking which applies.
   [accepted_mappings]
   # "GDD Name" = "implementation_name"
   ```
-- When setup is done, hand off explicitly: next step is the separate
-  `detect-drift` skill / `/detect-drift` command after they save their GDD.
+- When setup is done, hand off explicitly: next step is **`fido context`**
+  (skill `fido-context`) after they save their GDD so `AGENTS.md` receives the
+  game design context block. Mention `detect-drift` only as an optional audit.
 
-First-run detector provisioning (when they later scan) requires **`uv`**; scans
-stay local and offline after that.
+First-run detector provisioning (when they later run context or scan) requires
+**`uv`**; work stays local and offline after that.

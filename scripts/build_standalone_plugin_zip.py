@@ -11,8 +11,12 @@ OUTPUT = ROOT / "showcase" / "site" / "public" / "downloads" / "gdd-drift-detect
 
 PLUGIN_FILES = (
     "plugins/gdd-drift-detector/.codex-plugin/plugin.json",
+    "plugins/gdd-drift-detector/hooks/hooks.json",
     "plugins/gdd-drift-detector/scripts/detect-drift.py",
+    "plugins/gdd-drift-detector/scripts/fido-context.py",
+    "plugins/gdd-drift-detector/scripts/fido-context-hook.sh",
     "plugins/gdd-drift-detector/skills/detect-drift/SKILL.md",
+    "plugins/gdd-drift-detector/skills/fido-context/SKILL.md",
     "plugins/gdd-drift-detector/skills/setup-gdd/SKILL.md",
 )
 

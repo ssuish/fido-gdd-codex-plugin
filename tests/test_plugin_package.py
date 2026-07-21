@@ -36,9 +36,44 @@ def test_plugin_manifest_and_marketplace_reference_shared_detector() -> None:
     assert manifest["name"] == "gdd-drift-detector"
     assert (PLUGIN / "skills" / "detect-drift" / "SKILL.md").is_file()
     assert (PLUGIN / "skills" / "setup-gdd" / "SKILL.md").is_file()
+    assert (PLUGIN / "skills" / "fido-context" / "SKILL.md").is_file()
     assert (PLUGIN / "scripts" / "detect-drift.py").is_file()
+    assert (PLUGIN / "scripts" / "fido-context.py").is_file()
+    assert (PLUGIN / "scripts" / "fido-context-hook.sh").is_file()
+    assert (PLUGIN / "hooks" / "hooks.json").is_file()
     assert marketplace["plugins"][0]["source"]["path"] == "./plugins/gdd-drift-detector"
     assert chatgpt_marketplace == marketplace
+
+
+def test_plugin_leads_with_context_refresh_surfaces() -> None:
+    manifest = json.loads(
+        (PLUGIN / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+    )
+    hooks = json.loads((PLUGIN / "hooks" / "hooks.json").read_text(encoding="utf-8"))
+    skill = (PLUGIN / "skills" / "fido-context" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    default_prompt = manifest["interface"]["defaultPrompt"].lower()
+    short = manifest["interface"]["shortDescription"].lower()
+    long = manifest["interface"]["longDescription"].lower()
+
+    assert "fido context" in default_prompt or "game design context" in default_prompt
+    assert "session" in short or "context" in short
+    assert "context" in long
+    assert "SessionStart" in hooks["hooks"]
+    session_hooks = hooks["hooks"]["SessionStart"]
+    assert session_hooks
+    command = session_hooks[0]["hooks"][0]["command"]
+    assert "fido-context-hook.sh" in command
+    hook_script = (PLUGIN / "scripts" / "fido-context-hook.sh").read_text(
+        encoding="utf-8"
+    )
+    assert "--update-only" in hook_script
+    assert "--if-stale" in hook_script
+    assert "--update-only" in skill or "fido context" in skill
+    assert "setup-gdd" in skill
+    assert "detect-drift" in skill
+    assert "audit" in skill.lower() or "secondary" in skill.lower()
 
 
 def test_launcher_help_does_not_provision_or_scan() -> None:
@@ -234,3 +269,169 @@ def test_extracted_standalone_package_scans_without_gdd_detector_root(
     )
     assert second.returncode == 0, second.stderr
     assert "uv" not in second.stderr.lower()
+
+
+def _load_context_launcher_module():
+    path = PLUGIN / "scripts" / "fido-context.py"
+    spec = importlib.util.spec_from_file_location("fido_context_launcher", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_context_hook_falls_back_to_bundled_launcher_and_fail_opens(
+    tmp_path: Path,
+) -> None:
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    log = tmp_path / "bundled-args.txt"
+    fake_python = bin_dir / "python3"
+    fake_python.write_text(
+        f'#!/bin/sh\nprintf "%s\\n" "$*" > "{log}"\nexit 7\n',
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+
+    env = {
+        "PATH": str(bin_dir),
+        "PLUGIN_ROOT": str(PLUGIN),
+        "HOME": str(tmp_path),
+    }
+    completed = subprocess.run(
+        ["/bin/bash", str(PLUGIN / "scripts" / "fido-context-hook.sh")],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=env,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "continuing session" in completed.stderr
+    recorded = log.read_text(encoding="utf-8").strip()
+    assert "fido-context.py" in recorded
+    assert "--update-only" in recorded
+    assert "--if-stale" in recorded
+
+
+def test_context_hook_prefers_path_fido(tmp_path: Path) -> None:
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    log = tmp_path / "fido-args.txt"
+    fake_fido = bin_dir / "fido"
+    fake_fido.write_text(
+        f'#!/bin/sh\nprintf "%s\\n" "$*" > "{log}"\nexit 0\n',
+        encoding="utf-8",
+    )
+    fake_fido.chmod(0o755)
+
+    env = os.environ.copy()
+    env["PATH"] = f"{bin_dir}{os.pathsep}{env.get('PATH', '')}"
+    env["PLUGIN_ROOT"] = str(PLUGIN)
+    completed = subprocess.run(
+        ["/bin/bash", str(PLUGIN / "scripts" / "fido-context-hook.sh")],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=env,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    recorded = log.read_text(encoding="utf-8").strip()
+    assert recorded.startswith("context --project-root")
+    assert "--update-only" in recorded
+    assert "--if-stale" in recorded
+
+
+def test_context_hook_falls_through_to_bundled_when_path_fido_fails(
+    tmp_path: Path,
+) -> None:
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    fido_log = tmp_path / "fido-args.txt"
+    bundled_log = tmp_path / "bundled-args.txt"
+    fake_fido = bin_dir / "fido"
+    fake_fido.write_text(
+        f'#!/bin/sh\nprintf "%s\\n" "$*" > "{fido_log}"\nexit 3\n',
+        encoding="utf-8",
+    )
+    fake_fido.chmod(0o755)
+    fake_python = bin_dir / "python3"
+    fake_python.write_text(
+        f'#!/bin/sh\nprintf "%s\\n" "$*" > "{bundled_log}"\nexit 0\n',
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+
+    env = {
+        "PATH": str(bin_dir),
+        "PLUGIN_ROOT": str(PLUGIN),
+        "HOME": str(tmp_path),
+    }
+    completed = subprocess.run(
+        ["/bin/bash", str(PLUGIN / "scripts" / "fido-context-hook.sh")],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=env,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "trying bundled launcher" in completed.stderr
+    assert "--update-only" in fido_log.read_text(encoding="utf-8")
+    assert "--if-stale" in fido_log.read_text(encoding="utf-8")
+    bundled = bundled_log.read_text(encoding="utf-8").strip()
+    assert "fido-context.py" in bundled
+    assert "--update-only" in bundled
+    assert "--if-stale" in bundled
+
+
+def test_context_launcher_forwards_context_subcommand(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = _load_context_launcher_module()
+    detect = _load_launcher_module()
+    package = tmp_path / "standalone"
+    (package / "src" / "gdd_drift_detector").mkdir(parents=True)
+    (package / "pyproject.toml").write_text("[project]\nname='demo'\n")
+    python = tmp_path / "python"
+    python.write_text("#!/bin/sh\n")
+    python.chmod(0o755)
+    captured: dict[str, object] = {}
+
+    def fake_run(command, env=None, check=False):  # type: ignore[no-untyped-def]
+        captured["command"] = list(command)
+        captured["env"] = env
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(detect, "ensure_environment", lambda *_args: python)
+    monkeypatch.setattr(module, "_load_detect_drift", lambda: detect)
+    monkeypatch.setattr(module, "_plugin_root", lambda: PLUGIN)
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    code = module.main(
+        [
+            "--project-root",
+            str(tmp_path / "project"),
+            "--detector-root",
+            str(package),
+            "--update-only",
+            "--if-stale",
+        ]
+    )
+
+    assert code == 0
+    command = captured["command"]
+    assert isinstance(command, list)
+    assert command[:6] == [
+        str(python),
+        "-m",
+        "gdd_drift_detector",
+        "context",
+        "--project-root",
+        str(tmp_path / "project"),
+    ]
+    assert command[6:] == ["--update-only", "--if-stale"]

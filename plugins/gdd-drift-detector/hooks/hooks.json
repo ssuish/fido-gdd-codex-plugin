@@ -1,0 +1,17 @@
+{
+  "description": "Refresh Fido game design context when a Codex session starts.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/fido-context-hook.sh\"",
+            "statusMessage": "Refreshing Fido game design context"
+          }
+        ]
+      }
+    ]
+  }
+}
