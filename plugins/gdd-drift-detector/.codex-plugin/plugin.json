@@ -1,6 +1,6 @@
 {
   "name": "gdd-drift-detector",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Fido: keep AI coding sessions aligned to your game design via local context refresh and design-fidelity checks.",
   "author": {
     "name": "Local developer"

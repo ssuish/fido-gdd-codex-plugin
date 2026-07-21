@@ -161,7 +161,11 @@ def test_legacy_and_explicit_scan_argv_produce_equivalent_results(
 
     assert legacy_code == 0
     assert explicit_code == 0
-    assert json.loads(legacy.out) == json.loads(explicit.out)
+    legacy_payload = json.loads(legacy.out)
+    explicit_payload = json.loads(explicit.out)
+    legacy_payload.get("scan", {}).pop("duration_ms", None)
+    explicit_payload.get("scan", {}).pop("duration_ms", None)
+    assert legacy_payload == explicit_payload
     assert legacy.err == ""
     assert explicit.err == ""
 

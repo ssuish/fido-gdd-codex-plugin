@@ -1,9 +1,13 @@
 # Install Fido
 
 Fido keeps coding sessions aligned to your GDD via **context refresh**, with an
-optional explicit drift audit. Install the `fido` CLI, the Codex plugin, or
-both. Scans and context refresh stay local: Fido does not upload your GDD or
-source files.
+optional explicit drift audit. Install the Codex plugin (recommended), the
+`fido` CLI, or both. Scans and context refresh stay local: Fido does not upload
+your GDD or source files.
+
+**Do not run `uv tool install fido`.** On PyPI that name is a different package
+(Yelp’s HTTP client). Fido is not published there yet — install from the
+standalone ZIP path or from git (below).
 
 ## Prerequisites
 
@@ -11,31 +15,21 @@ source files.
 - A Godot 4 + GDScript project
 - For the in-session workflow: OpenAI Codex with plugin support
 
-## CLI (`uv tool install`)
-
-```sh
-uv tool install fido
-fido context
-```
-
-`fido context` refreshes the game design context block in `AGENTS.md` (use
-`--print` for stdout only). Optional cold start: `fido init`. For an explicit
-design-fidelity audit: `fido scan --project-root . --json` (or the Codex
-`detect-drift` skill).
-
-From a checkout without a tool install: `uv sync` then `uv run fido …`. The
-import package remains `gdd_drift_detector`
-(`python -m gdd_drift_detector` routes to the same CLI).
-
 ## Codex plugin (standalone ZIP)
 
 The ZIP includes the plugin, both local marketplace files, and the detector
 runtime used by the launcher. First context refresh or scan provisions the
 embedded detector environment with `uv`.
 
-### Codex CLI
+1. Download
+   [`gdd-drift-detector.zip`](https://fido.quidor-adrean.workers.dev/downloads/gdd-drift-detector.zip)
+   from the [live showcase](https://fido.quidor-adrean.workers.dev) (Install /
+   docs), or from
+   [`showcase/site/public/downloads/gdd-drift-detector.zip`](showcase/site/public/downloads/gdd-drift-detector.zip)
+   in this repo.
+2. Extract it to a durable directory.
 
-Extract the ZIP to a durable directory, then run:
+### Codex CLI
 
 ```sh
 curl -fsSL https://chatgpt.com/codex/install.sh | sh
@@ -67,6 +61,38 @@ intent, gaps, and coverage. SessionStart runs
 `fido context --update-only --if-stale` when the plugin is installed. Use
 `setup-gdd` if the project is untracked, then re-run `fido context`. Run
 `detect-drift` / `fido scan` only when you want a full audit report.
+
+## CLI (from ZIP or git)
+
+After extracting the standalone ZIP, install the console script from that
+directory (the folder that contains `pyproject.toml`):
+
+```sh
+# Do NOT run: uv tool install fido  (PyPI name clash)
+uv tool install /absolute/path/to/extracted-fido
+fido context
+```
+
+Alternatives:
+
+```sh
+# From a git clone of this repo
+uv tool install .
+# or without a global tool:
+uv sync
+uv run fido context
+
+# Direct from GitHub
+uv tool install git+https://github.com/ssuish/gdd-plugin.git
+```
+
+`fido context` refreshes the game design context block in `AGENTS.md` (use
+`--print` for stdout only). Optional cold start: `fido init`. For an explicit
+design-fidelity audit: `fido scan --project-root . --json` (or the Codex
+`detect-drift` skill).
+
+The import package remains `gdd_drift_detector`
+(`python -m gdd_drift_detector` routes to the same CLI).
 
 ## Launcher fallback
 

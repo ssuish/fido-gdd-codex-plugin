@@ -47,7 +47,8 @@ The Showcase website deploys as a Cloudflare Worker with static assets via
 name `fido`). The Godot Web export under `game/` is too large for Workers
 static assets (25 MiB/file; wasm is ~35 MiB), so CI syncs it to R2 bucket
 **`fido-showcase-game`** and the Worker serves `/game/*` from that bucket
-(same-origin, with isolation headers). Production custom domain intent:
+(same-origin, with isolation headers). Current live URL:
+`https://fido.quidor-adrean.workers.dev`. Optional future custom domain:
 `https://fido.kofeejan.com`.
 
 ### Human prerequisites
@@ -68,8 +69,10 @@ static assets (25 MiB/file; wasm is ~35 MiB), so CI syncs it to R2 bucket
 
    (`deploy` builds, syncs `dist/game` to R2, strips it from assets, then
    `wrangler deploy`.)
-3. Attach custom domain `fido.kofeejan.com` on the **Worker** in the Cloudflare
-   dashboard and configure DNS/SSL. CI cannot finish domain attachment alone.
+3. Optionally attach custom domain `fido.kofeejan.com` on the **Worker** in the
+   Cloudflare dashboard and configure DNS/SSL when that domain is ready. CI
+   cannot finish domain attachment alone. Current live site is
+   `https://fido.quidor-adrean.workers.dev`.
 4. Optional: protect the GitHub Environment named `production` (used for
    `main` deploys).
 
@@ -83,8 +86,8 @@ deploy.
 
 After a green production deploy:
 
-1. Open the live URL (`https://fido.kofeejan.com` or
-   `https://fido.<account-subdomain>.workers.dev`).
+1. Open the live URL (`https://fido.quidor-adrean.workers.dev`, or a custom
+   domain such as `https://fido.kofeejan.com` when attached).
 2. Confirm Proof (Godot Showcase Web export) loads and plays
    (`/game/index.html` and `/game/godot-showcase.wasm` from R2 via the Worker).
 3. Confirm Plugin download ZIP is reachable from Install handoff.

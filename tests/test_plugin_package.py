@@ -249,12 +249,12 @@ def test_extracted_standalone_package_scans_without_gdd_detector_root(
     )
     assert first.returncode == 0, first.stderr
     assert (project / "drift.json").is_file()
-    python_bin = cache_home / "gdd-drift-detector" / "0.1.0" / "venv" / "bin" / "python"
+    python_bin = cache_home / "gdd-drift-detector" / "0.2.0" / "venv" / "bin" / "python"
     if os.name == "nt":
         python_bin = (
             cache_home
             / "gdd-drift-detector"
-            / "0.1.0"
+            / "0.2.0"
             / "venv"
             / "Scripts"
             / "python.exe"

@@ -33,32 +33,15 @@ This is **not** a Godot editor plugin. Cursor and MCP hosts are future adapters.
 
 ## For game developers
 
-### Install the CLI
-
-```sh
-uv tool install fido
-```
-
-Then from your Godot project root:
-
-```sh
-fido context          # refresh AGENTS.md game design context block
-fido init             # bootstrap AGENTS.md delimiters (optional cold start)
-fido scan --project-root . --json   # explicit drift audit (secondary)
-```
-
-`fido context` is the default daily path: it writes or refreshes the delimited
-context block in `AGENTS.md` so coding sessions already know design intent,
-gaps, and coverage. Prefer it over a full drift audit unless you need deep
-findings.
-
 ### Install the Codex plugin
 
 **Option A — Standalone ZIP (recommended)**
 
 1. Download
-   [`gdd-drift-detector.zip`](showcase/site/public/downloads/gdd-drift-detector.zip)
-   (also linked from the [showcase](#try-the-showcase) install section).
+   [`gdd-drift-detector.zip`](https://fido.quidor-adrean.workers.dev/downloads/gdd-drift-detector.zip)
+   from the [live showcase](https://fido.quidor-adrean.workers.dev), or from
+   [`showcase/site/public/downloads/gdd-drift-detector.zip`](showcase/site/public/downloads/gdd-drift-detector.zip)
+   in this repo.
 2. Extract it to a durable directory.
 3. Install Codex CLI if needed, then add the extracted directory as a local
    marketplace:
@@ -97,6 +80,31 @@ codex plugin marketplace add /absolute/path/to/codex-hackathon
 
 `GDD_DETECTOR_ROOT` is an optional fallback if you run the launcher outside the
 standalone package layout; most users do not need it.
+
+### Install the CLI
+
+**Do not run `uv tool install fido`.** On PyPI that name is a different package.
+Install from the extracted ZIP (directory with `pyproject.toml`), a clone, or
+git:
+
+```sh
+uv tool install /absolute/path/to/extracted-fido
+# or: uv tool install .
+# or: uv tool install git+https://github.com/ssuish/gdd-plugin.git
+```
+
+Then from your Godot project root:
+
+```sh
+fido context          # refresh AGENTS.md game design context block
+fido init             # bootstrap AGENTS.md delimiters (optional cold start)
+fido scan --project-root . --json   # explicit drift audit (secondary)
+```
+
+`fido context` is the default daily path: it writes or refreshes the delimited
+context block in `AGENTS.md` so coding sessions already know design intent,
+gaps, and coverage. Prefer it over a full drift audit unless you need deep
+findings. Full handoff: [`INSTALL.md`](INSTALL.md).
 
 ### Refresh session context
 
@@ -215,8 +223,9 @@ exclude = [".godot/**"]
 
 ### CLI peer path
 
-After `uv tool install fido`, the console script is on your `PATH`. From a
-checkout without a tool install:
+After `uv tool install /absolute/path/to/extracted-fido` (or git/clone
+install), the console script is on your `PATH`. From a checkout without a tool
+install:
 
 ```sh
 uv sync
@@ -279,9 +288,8 @@ print(result.state, result.summary.coverage_percent)
 This repo ships a frozen Godot 4.6.3 deck-builder fixture and a linked React
 site that walks through real Fido findings beside a playable Web export.
 
-Live site (once DNS is attached): [https://fido.kofeejan.com](https://fido.kofeejan.com).
-Until then, use the Worker URL (`fido.<account-subdomain>.workers.dev`) after
-deploy, or run locally:
+Live site: [https://fido.quidor-adrean.workers.dev](https://fido.quidor-adrean.workers.dev).
+Or run locally:
 
 ```sh
 npm run showcase:dev

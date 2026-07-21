@@ -9,12 +9,15 @@ aligned with `release/manifest.json`.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-22
+
 ### Added
 
 - Showcase `/docs/` installation guide with sticky sidebar navigation, tabbed
   code snippets, copy controls, and collapsible troubleshooting.
 - Distributable Python package named `fido` with console script
-  `fido = gdd_drift_detector.cli:main` for `uv tool install fido` / PATH use
+  `fido = gdd_drift_detector.cli:main` for PATH use via
+  `uv tool install /path/to/extracted-fido` or git
   (`context`, `init`, and explicit `scan` / flag-first legacy scan).
 - Codex plugin `fido-context` hero skill plus SessionStart hook that runs
   `fido context --update-only --if-stale` (PATH `fido`, then bundled launcher;
@@ -31,10 +34,14 @@ aligned with `release/manifest.json`.
   refreshes only an existing Fido block.
 - Live Showcase website deploy (GitHub Actions + Wrangler) with production
   isolation headers (`COOP` / `COEP` / `CORP`) for the Godot Web export;
-  intended production URL `https://fido.kofeejan.com`.
+  live URL `https://fido.quidor-adrean.workers.dev` (optional future custom
+  domain `https://fido.kofeejan.com`).
 
 ### Changed
 
+- Install docs (README, INSTALL, showcase `/docs/`) no longer advertise bare
+  `uv tool install fido` (PyPI name clash); CLI install is from the standalone
+  ZIP path or git, with plugin ZIP as the primary handoff.
 - Showcase playable demo uses an accessible click-to-load facade: the ~35 MB
   Godot Web export iframe mounts only after explicit activation (unavailable
   builds still show the placeholder). No `/game/` network request runs before
@@ -106,5 +113,6 @@ Codex plugin, standalone ZIP install, and showcase fixture.
 - Product name **Fido** in user-facing copy; package/plugin id remains
   `gdd-drift-detector`.
 
-[Unreleased]: https://github.com/ssuish/fido-gdd-codex-plugin/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/ssuish/fido-gdd-codex-plugin/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ssuish/gdd-plugin/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ssuish/gdd-plugin/releases/tag/v0.2.0
+[0.1.0]: https://github.com/ssuish/gdd-plugin/releases/tag/v0.1.0

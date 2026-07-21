@@ -195,7 +195,11 @@ def test_install_docs_and_readme_describe_current_install_flows() -> None:
         assert "ChatGPT Work mode or Codex" in document
         assert "Plugins" in document
         assert "start a new chat" in document.lower()
-        assert "uv tool install fido" in document
+        assert "uv tool install /absolute/path/to/extracted-fido" in document
+        assert (
+            "Do not run `uv tool install fido`" in document
+            or "Do NOT run: uv tool install fido" in document
+        )
         assert "fido context" in document
         assert "manual plugin installer" not in document
         assert "Upload the ZIP directly" not in document
@@ -217,8 +221,11 @@ def test_docs_and_detect_skill_describe_mvp_polish_contract() -> None:
         assert "python -m gdd_drift_detector" in document
 
     assert "drift.toml" in readme
-    assert "uv tool install fido" in readme
-    assert "uv tool install fido" in install
+    assert "uv tool install /absolute/path/to/extracted-fido" in readme
+    assert "uv tool install /absolute/path/to/extracted-fido" in install
+    # Bare PyPI install must not appear as a recommended command line.
+    assert "\nuv tool install fido\n" not in readme
+    assert "\nuv tool install fido\n" not in install
     assert "[entity: type]" in readme
     assert "Add [entity: type] before this name to track it." in readme
     assert "MISSING" in readme
