@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Report } from "./types";
 import { Hero } from "./components/Hero";
 import { BenefitsSection } from "./components/BenefitsSection";
@@ -19,6 +19,9 @@ import {
 } from "./discovery/state";
 import { trackShowcaseEvent } from "./analytics";
 import { useTheme } from "./hooks/useTheme";
+import { prefersReducedMotion } from "./motion/prefersReducedMotion";
+
+const LandingMotion = lazy(() => import("./motion/LandingMotion"));
 
 function App() {
   const [report, setReport] = useState<Report | null>(null);
@@ -29,6 +32,7 @@ function App() {
   const [discovery, setDiscovery] = useState(() => createInitialDiscovery(0));
   const [proofSeen, setProofSeen] = useState(false);
   const findingButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const shellRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     fetch("./drift.json")
@@ -79,7 +83,7 @@ function App() {
     window.requestAnimationFrame(() => {
       findingButtonRefs.current[relatedIndex]?.focus();
       document.getElementById("finding-evidence")?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
         block: "nearest",
       });
     });
@@ -98,7 +102,7 @@ function App() {
       : `${report.summary.coverage_percent.toFixed(0)}%`;
 
   return (
-    <main className="site-shell">
+    <main className="site-shell" ref={shellRef}>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -148,6 +152,10 @@ function App() {
       </div>
 
       <SiteFooter docsHref="./docs/" homeHref="./" />
+
+      <Suspense fallback={null}>
+        <LandingMotion scope={shellRef} />
+      </Suspense>
     </main>
   );
 }
