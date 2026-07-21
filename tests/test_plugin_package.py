@@ -36,9 +36,28 @@ def test_plugin_manifest_and_marketplace_reference_shared_detector() -> None:
     assert manifest["name"] == "gdd-drift-detector"
     assert (PLUGIN / "skills" / "detect-drift" / "SKILL.md").is_file()
     assert (PLUGIN / "skills" / "setup-gdd" / "SKILL.md").is_file()
+    assert (PLUGIN / "skills" / "fido-context" / "SKILL.md").is_file()
     assert (PLUGIN / "scripts" / "detect-drift.py").is_file()
     assert marketplace["plugins"][0]["source"]["path"] == "./plugins/gdd-drift-detector"
     assert chatgpt_marketplace == marketplace
+
+
+def test_plugin_leads_with_context_refresh_surfaces() -> None:
+    manifest = json.loads(
+        (PLUGIN / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+    )
+    skill = (PLUGIN / "skills" / "fido-context" / "SKILL.md").read_text(encoding="utf-8")
+    default_prompt = manifest["interface"]["defaultPrompt"].lower()
+    short = manifest["interface"]["shortDescription"].lower()
+    long = manifest["interface"]["longDescription"].lower()
+
+    assert "fido context" in default_prompt or "game design context" in default_prompt
+    assert "session" in short or "context" in short
+    assert "context" in long
+    assert "--update-only" in skill or "fido context" in skill
+    assert "setup-gdd" in skill
+    assert "detect-drift" in skill
+    assert "audit" in skill.lower() or "secondary" in skill.lower()
 
 
 def test_launcher_help_does_not_provision_or_scan() -> None:

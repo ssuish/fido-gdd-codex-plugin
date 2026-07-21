@@ -215,6 +215,7 @@ def test_plugin_manifest_and_skill_contract() -> None:
     assert manifest["name"] == "gdd-drift-detector"
     assert (plugin_root / "skills" / "detect-drift" / "SKILL.md").is_file()
     assert (plugin_root / "skills" / "setup-gdd" / "SKILL.md").is_file()
+    assert (plugin_root / "skills" / "fido-context" / "SKILL.md").is_file()
     assert (plugin_root / "scripts" / "detect-drift.py").is_file()
 
 

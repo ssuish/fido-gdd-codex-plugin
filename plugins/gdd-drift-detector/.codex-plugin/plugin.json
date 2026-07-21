@@ -1,18 +1,18 @@
 {
   "name": "gdd-drift-detector",
   "version": "0.1.0",
-  "description": "Fido: local design-fidelity checks for your game designs.",
+  "description": "Fido: keep AI coding sessions aligned to your game design via local context refresh and design-fidelity checks.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Fido",
-    "shortDescription": "Local design-fidelity checks for your game designs.",
-    "longDescription": "Compare your GDD with implementation symbols via offline, evidence-rich local scans. Godot 4 + GDScript today; more engines planned.",
+    "shortDescription": "Refresh game design context for AI sessions; local GDD fidelity checks.",
+    "longDescription": "Fido writes a game design context block into AGENTS.md so each coding session starts aligned to your GDD. SessionStart refreshes when inputs are stale. Explicit detect-drift audits remain available for Godot 4 + GDScript projects.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "Run a local Fido design-fidelity (GDD drift) scan for this project."
+    "defaultPrompt": "Refresh Fido game design context for this project (fido context)."
   }
 }
