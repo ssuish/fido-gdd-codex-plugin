@@ -18,7 +18,7 @@ if command -v fido >/dev/null 2>&1; then
   if fido "${CONTEXT_ARGS[@]}"; then
     exit 0
   fi
-  _fail_open "fido context refresh failed; continuing session without blocking"
+  printf '%s\n' "PATH fido context refresh failed; trying bundled launcher" >&2
 fi
 
 BUNDLED="${PLUGIN_ROOT}/scripts/fido-context.py"
