@@ -7,7 +7,11 @@ import { DocsDisclosure } from "../components/docs/DocsDisclosure";
 import { marketplaceCommand } from "../discovery/state";
 import { useTheme } from "../hooks/useTheme";
 
-const CLI_INSTALL = `uv tool install fido
+const CLI_FROM_ZIP = `# Do NOT run: uv tool install fido  (PyPI name clash)
+uv tool install /absolute/path/to/extracted-fido
+fido context`;
+
+const CLI_FROM_GIT = `uv tool install git+https://github.com/ssuish/gdd-plugin.git
 fido context`;
 
 const CLI_CHECKOUT = `uv sync
@@ -47,8 +51,9 @@ export function DocsPage() {
         <h1>Install Fido</h1>
         <p className="hero-lede">
           Fido keeps coding sessions aligned to your GDD via context refresh, with an optional
-          explicit drift audit. Install the <code>fido</code> CLI, the Codex plugin, or both.
-          Scans and context refresh stay local: Fido does not upload your GDD or source files.
+          explicit drift audit. Install the Codex plugin (recommended), the <code>fido</code> CLI,
+          or both. Scans and context refresh stay local: Fido does not upload your GDD or source
+          files.
         </p>
       </header>
 
@@ -73,41 +78,6 @@ export function DocsPage() {
             </div>
           </section>
 
-          <section className="docs-section" id="cli" aria-labelledby="cli-title">
-            <h2 id="cli-title">CLI</h2>
-            <div className="docs-prose">
-              <p>
-                Install the distributable package, then refresh game design context.{" "}
-                <code>fido context</code> refreshes the game design context block in{" "}
-                <code>AGENTS.md</code> (use <code>--print</code> for stdout only). Project cold
-                start: <code>fido init</code>. For an explicit design-fidelity audit:{" "}
-                <code>fido scan --project-root . --json</code> (or the Codex{" "}
-                <code>detect-drift</code> skill).
-              </p>
-            </div>
-            <CodeTabs
-              label="CLI install path"
-              tabs={[
-                {
-                  id: "tool-install",
-                  label: "uv tool install",
-                  code: CLI_INSTALL,
-                },
-                {
-                  id: "checkout",
-                  label: "From checkout",
-                  code: CLI_CHECKOUT,
-                },
-              ]}
-            />
-            <div className="docs-prose">
-              <p>
-                The import package remains <code>gdd_drift_detector</code> (
-                <code>python -m gdd_drift_detector</code> routes to the same CLI).
-              </p>
-            </div>
-          </section>
-
           <section className="docs-section" id="plugin-zip" aria-labelledby="plugin-zip-title">
             <h2 id="plugin-zip-title">Codex plugin (standalone ZIP)</h2>
             <div className="docs-prose">
@@ -117,8 +87,12 @@ export function DocsPage() {
                 embedded detector environment with <code>uv</code>.
               </p>
               <p>
-                Download the package from the showcase, extract it to a durable directory, then
-                add that directory as a local Codex marketplace.
+                Download the package below (or from{" "}
+                <a href="https://fido.quidor-adrean.workers.dev" target="_blank" rel="noreferrer">
+                  fido.quidor-adrean.workers.dev
+                </a>
+                ), extract it to a durable directory, then add that directory as a local Codex
+                marketplace.
               </p>
             </div>
             <p>
@@ -182,6 +156,48 @@ export function DocsPage() {
                 },
               ]}
             />
+          </section>
+
+          <section className="docs-section" id="cli" aria-labelledby="cli-title">
+            <h2 id="cli-title">CLI</h2>
+            <div className="docs-prose">
+              <p>
+                Install the console script from the extracted ZIP (directory with{" "}
+                <code>pyproject.toml</code>), from git, or from a checkout.{" "}
+                <strong>Do not run</strong> <code>uv tool install fido</code> — on PyPI that name
+                is a different package. <code>fido context</code> refreshes the game design
+                context block in <code>AGENTS.md</code> (use <code>--print</code> for stdout
+                only). Project cold start: <code>fido init</code>. For an explicit
+                design-fidelity audit: <code>fido scan --project-root . --json</code> (or the
+                Codex <code>detect-drift</code> skill).
+              </p>
+            </div>
+            <CodeTabs
+              label="CLI install path"
+              tabs={[
+                {
+                  id: "from-zip",
+                  label: "From ZIP",
+                  code: CLI_FROM_ZIP,
+                },
+                {
+                  id: "from-git",
+                  label: "From git",
+                  code: CLI_FROM_GIT,
+                },
+                {
+                  id: "checkout",
+                  label: "From checkout",
+                  code: CLI_CHECKOUT,
+                },
+              ]}
+            />
+            <div className="docs-prose">
+              <p>
+                The import package remains <code>gdd_drift_detector</code> (
+                <code>python -m gdd_drift_detector</code> routes to the same CLI).
+              </p>
+            </div>
           </section>
 
           <section className="docs-section" id="after-install" aria-labelledby="after-install-title">
@@ -255,6 +271,16 @@ export function DocsPage() {
                   Use the absolute path to the extracted ZIP directory that contains the plugin
                   and marketplace files. Relative paths and paths to the ZIP archive itself will
                   fail.
+                </p>
+              </div>
+            </DocsDisclosure>
+            <DocsDisclosure title="Wrong fido on PATH after uv tool install">
+              <div className="docs-prose">
+                <p>
+                  Bare <code>uv tool install fido</code> installs an unrelated PyPI package.
+                  Uninstall it, then install from the extracted ZIP path:{" "}
+                  <code>uv tool uninstall fido</code> then{" "}
+                  <code>uv tool install /absolute/path/to/extracted-fido</code>.
                 </p>
               </div>
             </DocsDisclosure>

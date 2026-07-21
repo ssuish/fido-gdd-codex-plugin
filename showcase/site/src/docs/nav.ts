@@ -5,10 +5,10 @@ export type DocsNavItem = {
 
 export const DOCS_NAV: DocsNavItem[] = [
   { id: "prerequisites", label: "Prerequisites" },
-  { id: "cli", label: "CLI" },
   { id: "plugin-zip", label: "Plugin ZIP" },
   { id: "codex-cli", label: "Codex CLI" },
   { id: "chatgpt-desktop", label: "ChatGPT desktop" },
+  { id: "cli", label: "CLI" },
   { id: "after-install", label: "After install" },
   { id: "launcher-fallback", label: "Launcher fallback" },
   { id: "troubleshooting", label: "Troubleshooting" },
