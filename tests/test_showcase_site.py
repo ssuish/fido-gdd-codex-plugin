@@ -66,7 +66,6 @@ def test_site_consumes_fixture_generated_artifact_without_synthetic_findings() -
     assert (SITE / "public" / "downloads" / "gdd-drift-detector.zip").is_file()
 
 
-
 def _site_styles() -> str:
     styles_dir = SITE / "src" / "styles"
     return "\n".join(path.read_text() for path in sorted(styles_dir.glob("*.css")))
@@ -96,10 +95,19 @@ def test_site_declares_accessible_states_and_responsive_reduced_motion_rules() -
     assert "directly through the Codex app" not in source
     assert source.index("fido-context") < source.index("detect-drift")
     assert "@media (max-width: 767px)" in styles
+    assert "@media (max-width: 959px)" in styles
     assert "prefers-reduced-motion" in styles
     assert "prefers-color-scheme" not in styles
     assert "grid-template-areas" in styles
     assert '"game"' in styles and '"findings"' in styles and '"evidence"' in styles
+    assert "LandingMotion" in source
+    assert "FidelityTrace" in source
+    assert "data-reveal" in source
+    assert "useReveal" not in source
+    assert "useParallax" not in source
+    assert "ScrollSmoother" not in source
+    assert "MotionPathPlugin" in source
+    assert "ScrollTrigger" in source
 
 
 def test_site_declares_production_isolation_headers() -> None:

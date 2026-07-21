@@ -1,3 +1,5 @@
+import { FidelityTrace } from "./FidelityTrace";
+
 type HeroProps = {
   coverage: string;
   matched: number;
@@ -26,6 +28,7 @@ export function Hero({ coverage, matched, total, state }: HeroProps) {
         </div>
       </div>
       <aside className="hero-signal" aria-label="Current fixture scan summary">
+        <FidelityTrace />
         <div className="signal-line" data-signal-meta>
           <span>FIXTURE</span>
           <strong>DECK BUILDER / THREE ENCOUNTERS</strong>
