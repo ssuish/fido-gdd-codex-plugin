@@ -4,10 +4,16 @@ import json
 import shutil
 import socket
 import subprocess
+import sys
 import zipfile
 from pathlib import Path
 
 import pytest
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 from gdd_drift_detector import ScanConfig, scan
 
@@ -108,7 +114,13 @@ def test_release_versions_and_install_artifacts_are_aligned() -> None:
     site_report = json.loads(
         (ROOT / "showcase" / "site" / "public" / "drift.json").read_text()
     )
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+        "project"
+    ]
 
+    assert project["name"] == "fido"
+    assert project["scripts"]["fido"] == "gdd_drift_detector.cli:main"
+    assert detector["name"] == "gdd-drift-detector"
     assert detector["version"] == manifest["plugin"]["version"]
     assert manifest["showcase"]["version"] == manifest["version"]
     assert fixture_report["schema_version"] == manifest["detector"]["artifact_schema"]
@@ -144,6 +156,11 @@ def test_release_versions_and_install_artifacts_are_aligned() -> None:
         assert any(name.startswith("src/gdd_drift_detector/") for name in names), (
             "standalone ZIP must embed detector sources"
         )
+        embedded_project = tomllib.loads(
+            archive.read("pyproject.toml").decode("utf-8")
+        )["project"]
+        assert embedded_project["name"] == "fido"
+        assert embedded_project["scripts"]["fido"] == "gdd_drift_detector.cli:main"
 
 
 def test_standalone_zip_marketplace_paths_resolve_to_extracted_plugin(

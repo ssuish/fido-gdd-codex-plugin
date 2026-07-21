@@ -11,6 +11,9 @@ aligned with `release/manifest.json`.
 
 ### Added
 
+- Distributable Python package named `fido` with console script
+  `fido = gdd_drift_detector.cli:main` for `uv tool install fido` / PATH use
+  (`context`, `init`, and explicit `scan` / flag-first legacy scan).
 - Codex plugin `fido-context` hero skill plus SessionStart hook that runs
   `fido context --update-only --if-stale` (PATH `fido`, then bundled launcher;
   fail-open so sessions are never blocked).
@@ -30,6 +33,8 @@ aligned with `release/manifest.json`.
 
 ### Changed
 
+- README, INSTALL, and showcase install CTA lead with `fido context` /
+  `fido-context`; `fido scan` / `detect-drift` are framed as an explicit audit.
 - Plugin `defaultPrompt` / descriptions lead with session context refresh;
   `detect-drift` is positioned as an explicit audit, and `setup-gdd` hands off
   to `fido context` after the GDD is saved.
