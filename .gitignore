@@ -80,3 +80,9 @@ temp/
 .agents/plugins/*
 !.agents/plugins/marketplace.json
 docs/
+!showcase/site/docs/
+!showcase/site/docs/**
+!showcase/site/src/docs/
+!showcase/site/src/docs/**
+!showcase/site/src/components/docs/
+!showcase/site/src/components/docs/**
