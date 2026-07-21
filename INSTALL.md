@@ -106,5 +106,78 @@ python /absolute/path/to/extracted-fido/plugins/gdd-drift-detector/scripts/detec
   --project-root /path/to/godot-project
 ```
 
-See README for prefix-only Entity markers, pasteable `drift.toml`, advisory
-guidance, and ownership next actions.
+## Mark your GDD
+
+Only concepts with an **entity marker** count toward coverage. Unmarked prose
+may appear as advisory candidates only — guidance is
+`Add [entity: type] before this name to track it.`
+
+Put design docs on a discovery path (or configure `drift.toml` later):
+
+- `GDD.md` or `design.md` at the project root
+- `docs/gdd/**/*.md` or `docs/design/**/*.md`
+
+Marker syntax:
+
+```markdown
+[entity: system] Combat Loop
+
+Core draw → spend energy → resolve cards.
+
+[entity: system] [planned] Multiplayer Lobby
+
+Intentionally out of scope for the current slice.
+```
+
+- `[entity: type] Name` — tracked; name must follow marker (affects coverage)
+- `[planned]` — tracked but excluded from the coverage denominator
+
+Markers are prefix-only in this MVP. A marker placed after a heading name has
+no tracked name and produces a Scan advisory; it does not affect coverage.
+
+If you do not have a GDD yet, use the **`setup-gdd`** skill in Codex (bring an
+existing doc, or grill a draft in chat). The skill does not silently write files;
+you save the draft yourself, then re-run `fido context`.
+
+## Read the results
+
+| Status | Meaning |
+|--------|---------|
+| `MATCHED` | Tracked entity has an exact (or accepted) implementation match |
+| `MISSING` | Tracked entity has no implementation match |
+| `RENAMED?` | One unique fuzzy candidate — review before treating as matched |
+| `ORPHANED` | Top-level script/class not represented by a tracked entity |
+| `PLANNED` | Marked `[planned]` — outside the current coverage slice |
+
+Ownership next actions:
+
+| Status | Owner action |
+|--------|--------------|
+| `MISSING` | Implement or unmark/remove the tracked entity |
+| `RENAMED?` | Add `accepted_mappings` or reject the candidate; mapping required for a match |
+| `ORPHANED` | Track, exclude in `drift.toml`, or remove the implementation symbol |
+| `PLANNED` | Keep outside current coverage slice until ready |
+
+**Accepted renames** live in optional project-local `drift.toml` (read-only for
+the detector — edit it yourself). Paste this starter only when you need discovery
+overrides or accepted mappings. Fido never creates or edits it:
+
+```toml
+[discovery]
+gdd = ["GDD.md"]
+sources = ["**/*.gd"]
+exclude = [".godot/**"]
+
+[accepted_mappings]
+# "GDD Name" = "implementation_name"
+```
+
+## Troubleshooting
+
+| Problem | What to try |
+|---------|-------------|
+| First run fails / missing deps | Install [`uv`](https://docs.astral.sh/uv/) and retry; provisioning needs network once |
+| Coverage `N/A` or “untracked” | Not marked yet; put `[entity: type]` before intended names, or run `setup-gdd` then save a GDD on a discovery path |
+| Empty-marker advisory | Put `[entity: type]` before the intended name; heading-suffix markers are not tracked |
+| Wrong files scanned | Pass `--gdd` / `--source`, or set `[discovery]` in `drift.toml` |
+| Want rename to count as matched | Add an entry under `[accepted_mappings]` in `drift.toml` |

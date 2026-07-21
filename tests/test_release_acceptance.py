@@ -221,24 +221,25 @@ def test_docs_and_detect_skill_describe_mvp_polish_contract() -> None:
     for document in (readme, install):
         assert "OpenAI Codex" in document
         assert "uv" in document
-        assert "scripts/detect-drift.py" in document
         assert "fido context" in document
         assert "fido scan" in document or "detect-drift" in document
-        assert "python -m gdd_drift_detector" in document
 
-    assert "drift.toml" in readme
+    # Full handoff (launchers, package identity, markers) lives in INSTALL.md.
+    assert "scripts/detect-drift.py" in install
+    assert "python -m gdd_drift_detector" in install
     assert "uv tool install /absolute/path/to/extracted-fido" in readme
     assert "uv tool install /absolute/path/to/extracted-fido" in install
     # Bare PyPI install must not appear as a recommended command line.
     assert "\nuv tool install fido\n" not in readme
     assert "\nuv tool install fido\n" not in install
-    assert "[entity: type]" in readme
-    assert "Add [entity: type] before this name to track it." in readme
-    assert "MISSING" in readme
-    assert "RENAMED?" in readme
-    assert "ORPHANED" in readme
-    assert "PLANNED" in readme
-    assert "not marked yet" in readme.lower()
+    assert "drift.toml" in install
+    assert "[entity: type]" in install
+    assert "Add [entity: type] before this name to track it." in install
+    assert "MISSING" in install
+    assert "RENAMED?" in install
+    assert "ORPHANED" in install
+    assert "PLANNED" in install
+    assert "not marked yet" in install.lower()
     assert "prefix-only" in install
 
     assert "EMPTY_MARKER_NAME" in detect
