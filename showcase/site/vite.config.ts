@@ -15,6 +15,14 @@ const godotHeaders = {
 export default defineConfig({
   plugins: [react()],
   base: "./",
+  build: {
+    rollupOptions: {
+      input: {
+        main: "./index.html",
+        docs: "./docs/index.html",
+      },
+    },
+  },
   server: {
     headers: godotHeaders,
   },

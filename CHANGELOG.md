@@ -11,6 +11,8 @@ aligned with `release/manifest.json`.
 
 ### Added
 
+- Showcase `/docs/` installation guide with sticky sidebar navigation, tabbed
+  code snippets, copy controls, and collapsible troubleshooting.
 - Distributable Python package named `fido` with console script
   `fido = gdd_drift_detector.cli:main` for `uv tool install fido` / PATH use
   (`context`, `init`, and explicit `scan` / flag-first legacy scan).
@@ -33,6 +35,10 @@ aligned with `release/manifest.json`.
 
 ### Changed
 
+- Showcase styles split into shared/landing/docs entry sheets with fluid
+  `clamp()` type and spacing, content-driven grids, earlier hero/proof stacking,
+  and a fixed mobile docs TOC that no longer hides nested nav links; docs
+  layout contains long code/tab content at narrow widths.
 - README, INSTALL, and showcase install CTA lead with `fido context` /
   `fido-context`; `fido scan` / `detect-drift` are framed as an explicit audit.
 - Plugin `defaultPrompt` / descriptions lead with session context refresh;
@@ -52,6 +58,8 @@ aligned with `release/manifest.json`.
 
 ### Fixed
 
+- Showcase docs narrow layout no longer horizontally scrolls from long code/tab
+  content; tab panels constrain `min-width` so marketplace snippets stay in-flow.
 - Launcher forwards `--gdd` / `--source` (and strips a redundant `--json`) to the
   detector CLI so skill and peer examples match runtime behavior.
 
